@@ -4,6 +4,7 @@ import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/model/otp_request_result.dart';
 import 'package:barberbook_app/features/auth/model/user_session.dart';
 import 'package:barberbook_app/features/auth/provider/auth_providers.dart';
 
@@ -72,6 +73,46 @@ class AuthController extends Notifier<AuthState> {
   }) async {
     final result = await ref.read(authRepositoryProvider).login(
           phone: phone,
+          password: password,
+        );
+
+    switch (result) {
+      case Success(:final data):
+        state = AuthAuthenticated(data.user);
+        return null;
+      case ResultFailure(:final failure):
+        return failure;
+    }
+  }
+
+  /// Buoc 1 dang ky (US-AUTH-001): gui SDT + ho ten de nhan OTP.
+  ///
+  /// Tra ve nguyen [Result] (khong rut gon thanh `Failure?` nhu
+  /// [loginWithPhonePassword]) vi [RegisterScreen] can lay du lieu thanh
+  /// cong (`otpRequestId`, `expiresInSeconds`) de chuyen tiep sang [OtpScreen].
+  Future<Result<OtpRequestResult>> requestRegisterOtp({
+    required String phone,
+    required String fullName,
+  }) {
+    return ref.read(authRepositoryProvider).requestRegisterOtp(
+          phone: phone,
+          fullName: fullName,
+        );
+  }
+
+  /// Buoc 2 dang ky: xac thuc OTP + tao mat khau.
+  ///
+  /// Thanh cong = tu dong dang nhap (giong [loginWithPhonePassword]) -
+  /// `route_guard.dart` se tu dieu huong vao dung Shell theo role, [OtpScreen]
+  /// khong can tu dieu huong.
+  Future<Failure?> completeRegistration({
+    required String otpRequestId,
+    required String otpCode,
+    required String password,
+  }) async {
+    final result = await ref.read(authRepositoryProvider).verifyOtpAndRegister(
+          otpRequestId: otpRequestId,
+          otpCode: otpCode,
           password: password,
         );
 

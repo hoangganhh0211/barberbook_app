@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
@@ -10,6 +11,7 @@ import 'package:barberbook_app/core/utils/validators.dart';
 import 'package:barberbook_app/core/widgets/app_logo.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
+import 'package:barberbook_app/routes/route_paths.dart';
 
 /// Man dang nhap (US-AUTH-001) - SDT + Mat khau, dung theo luong chuan
 /// muc 3.1 trong tai lieu: "Chay Validation -> Gui API -> Loading -> Xu ly
@@ -200,7 +202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     Text('Chưa có tài khoản? ', style: AppTextStyles.bodySecondary),
                     TextButton(
-                      onPressed: _isSubmitting ? null : () => _showComingSoon('Đăng ký'),
+                      onPressed: _isSubmitting ? null : () => context.push(RoutePaths.register),
                       style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
                       child: const Text('Đăng ký ngay'),
                     ),

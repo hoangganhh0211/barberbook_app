@@ -29,6 +29,13 @@ abstract class Validators {
     return null;
   }
 
+  static String? fullName(String? value) {
+    final String input = (value ?? '').trim();
+    if (input.isEmpty) return 'Vui lòng nhập họ tên';
+    if (input.length < 2) return 'Họ tên quá ngắn';
+    return null;
+  }
+
   /// Dung cho form "Dat lai mat khau" (Sprint 1 - phan Quen mat khau) -
   /// so sanh 2 truong password trung khop.
   static String? Function(String?) confirmPassword(String originalPassword) {

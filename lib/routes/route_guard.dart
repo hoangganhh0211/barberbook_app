@@ -21,24 +21,31 @@ class RouterRefreshNotifier extends ChangeNotifier {
 
 /// Logic redirect trung tam - noi DUY NHAT quyet dinh:
 /// 1. Chua biet trang thai auth -> o lai Splash.
-/// 2. Chua dang nhap -> ep ve Login.
-/// 3. Da dang nhap nhung dang o Splash/Login -> dua vao dung Shell theo Role.
+/// 2. Chua dang nhap -> ep ve Login (tru khi dang o Register/OTP - cung
+///    thuoc nhom "pre-auth", cho phep o lai).
+/// 3. Da dang nhap nhung dang o Splash/Login/Register/OTP -> dua vao dung
+///    Shell theo Role.
 /// 4. Da dang nhap nhung co truy cap sai khu vuc (Customer vao /partner/...
 ///    hoac nguoc lai) -> dua ve dung Shell cua minh (chan truy cap cheo).
 String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
   final String location = routerState.matchedLocation;
   final bool isOnSplash = location == RoutePaths.splash;
-  final bool isOnLogin = location == RoutePaths.login;
+  // "Pre-auth area": cac man nguoi dung CHUA dang nhap duoc phep dung lai -
+  // dang ky them man moi (vd: Quen mat khau) CHI can them vao list nay,
+  // khong phai sua logic redirect.
+  final bool isOnPreAuthArea = location == RoutePaths.login ||
+      location == RoutePaths.register ||
+      location == RoutePaths.registerOtp;
   final bool isOnCustomerArea = location.startsWith(RoutePaths.customerRoot);
   final bool isOnPartnerArea = location.startsWith(RoutePaths.partnerRoot);
 
   return switch (authState) {
     AuthUnknown() => isOnSplash ? null : RoutePaths.splash,
-    AuthUnauthenticated() => isOnLogin ? null : RoutePaths.login,
+    AuthUnauthenticated() => isOnPreAuthArea ? null : RoutePaths.login,
     AuthAuthenticated(:final session) => _redirectForAuthenticated(
         role: session.role,
         isOnSplash: isOnSplash,
-        isOnLogin: isOnLogin,
+        isOnPreAuthArea: isOnPreAuthArea,
         isOnCustomerArea: isOnCustomerArea,
         isOnPartnerArea: isOnPartnerArea,
       ),
@@ -48,14 +55,14 @@ String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
 String? _redirectForAuthenticated({
   required UserRole role,
   required bool isOnSplash,
-  required bool isOnLogin,
+  required bool isOnPreAuthArea,
   required bool isOnCustomerArea,
   required bool isOnPartnerArea,
 }) {
   final String homeForRole =
       role.isCustomer ? RoutePaths.customerHome : RoutePaths.partnerDashboard;
 
-  if (isOnSplash || isOnLogin) {
+  if (isOnSplash || isOnPreAuthArea) {
     return homeForRole;
   }
 
