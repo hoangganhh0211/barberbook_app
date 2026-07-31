@@ -1,7 +1,3 @@
-/// Cac exception tang Service - duoc nem (throw) tu `XxxApiService` khi goi
-/// Dio that bai. Repository se catch nhung exception nay va convert sang
-/// [Failure] (xem `failure.dart`) de UI/Provider khong bao gio phai biet
-/// ve chi tiet ky thuat cua Dio.
 library;
 
 /// Base class cho tat ca exception cua app - cho phep catch chung khi can.
@@ -31,9 +27,9 @@ final class RequestTimeoutException extends AppException {
 final class ServerException extends AppException {
   const ServerException({
     required this.statusCode,
-    required super.message,
+    required String message,
     this.errorCode,
-  });
+  }) : super(message);
 
   final int statusCode;
 

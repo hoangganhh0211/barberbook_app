@@ -2,20 +2,6 @@ import 'package:dio/dio.dart';
 
 import 'package:barberbook_app/core/error/exceptions.dart';
 
-/// Interceptor duy nhat chiu trach nhiem "dich" moi loi Dio sang [AppException].
-///
-/// Dat o cuoi chuoi interceptor (xem `dio_client.dart`) de dam bao no bat
-/// duoc loi tu ca AuthInterceptor phia truoc (vd: refresh token that bai).
-///
-/// Sau interceptor nay, moi noi goi Dio (trong XxxApiService) chi can:
-/// ```dart
-/// try {
-///   final res = await _dio.post(...);
-///   return MyModel.fromJson(res.data);
-/// } on AppException {
-///   rethrow; // da duoc chuan hoa, Repository se catch va map sang Failure
-/// }
-/// ```
 class ErrorInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
@@ -37,6 +23,7 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return const RequestTimeoutException();
 
       case DioExceptionType.connectionError:
