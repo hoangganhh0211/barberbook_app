@@ -1,0 +1,79 @@
+name: barberbook_app
+description: "BarberBook - Ung dung dat lich cat toc (Customer + Partner)."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  go_router: ^14.6.2
+
+  # Networking
+  dio: ^5.7.0
+
+  # Models / Serialization
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Storage
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
+
+  # i18n / formatting
+  intl: 0.20.2
+
+  # UI/UX
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.16
+  shimmer: ^3.0.0
+
+  # Nghiep vu dac thu (se dung tu Sprint 2 tro di)
+  table_calendar: ^3.1.3
+  pin_code_fields: ^8.0.1
+  image_picker: ^1.1.2
+  image_cropper: ^8.0.2
+  permission_handler: ^11.3.1
+  geolocator: ^13.0.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.9.0
+  custom_lint: ^0.7.0
+  riverpod_lint: ^2.6.2
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/
+
+  # fonts:
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter-Regular.ttf
+  #       - asset: assets/fonts/Inter-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Inter-Bold.ttf
+  #         weight: 700
