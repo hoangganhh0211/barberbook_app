@@ -1,21 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
-import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
-import 'package:barberbook_app/features/auth/model/otp_request_result.dart';
 import 'package:barberbook_app/features/auth/model/user_session.dart';
 import 'package:barberbook_app/features/auth/provider/auth_providers.dart';
 
 /// Trang thai xac thuc cua toan app - [AppRouter] se doc state nay de
 /// quyet dinh redirect (xem `route_guard.dart`).
+///
+/// LUU Y: ten trung voi `supa.AuthState` cua Supabase SDK (dai dien 1 SU
+/// KIEN thay doi auth: {event, session}) - 2 khai niem khac nhau hoan toan.
+/// File nay import Supabase voi alias `supa` de tranh nham lan.
 sealed class AuthState {
   const AuthState();
 }
 
-/// Chua xac dinh - dang trong qua trinh kiem tra token co san hay khong
-/// (goi API `/auth/me` khi app vua mo). Hien Splash Screen o trang thai nay.
+/// Chua xac dinh - dang cho su kien dau tien tu `onAuthStateChange`
+/// (Supabase luon phat 1 su kien `initialSession` ngay khi subscribe, cho
+/// biet co phien cu duoc luu hay khong). Hien Splash Screen o trang thai nay.
 final class AuthUnknown extends AuthState {
   const AuthUnknown();
 }
@@ -32,107 +38,108 @@ final class AuthAuthenticated extends AuthState {
 /// Notifier trung tam quan ly phien dang nhap - "nguon su that" duy nhat
 /// ve trang thai xac thuc cua toan app.
 class AuthController extends Notifier<AuthState> {
+  StreamSubscription<supa.AuthState>? _authSubscription;
+
   @override
   AuthState build() {
-    _restoreSession();
+    // Subscribe 1 LAN duy nhat khi Controller duoc khoi tao. Supabase se
+    // tu phat su kien `initialSession` ngay lap tuc (co the session=null
+    // neu chua tung dang nhap, hoac session cu neu con hop le) - dung de
+    // khoi phuc phien khi mo lai app, THAY THE hoan toan cho viec goi API
+    // `/auth/me` thu cong nhu kien truc REST truoc day.
+    //
+    // Khai bao kieu TUONG MINH o day (khong de Dart tu suy luan) vi
+    // `supa.AuthState` (su kien cua Supabase) rat de bi nham voi `AuthState`
+    // (state cua app, khai bao ngay phia tren) - neu 1 trong 2 cho bi go
+    // nham (vd: IDE tu "organize imports" lam mat prefix `supa.`), loi se
+    // hien ra CHINH XAC o dong nay thay vi bao chung chung "type dynamic".
+    final Stream<supa.AuthState> authStream = ref.read(authServiceProvider).onAuthStateChange;
+    _authSubscription = authStream.listen(_handleAuthStateChange);
+    ref.onDispose(() => _authSubscription?.cancel());
+
     return const AuthUnknown();
   }
 
-  /// Khoi phuc phien dang nhap khi mo lai app: neu co access_token da luu,
-  /// goi `/auth/me` de xac nhan token con hop le (va lay UserSession moi
-  /// nhat). Neu token het han, [AuthInterceptor] se tu dong thu refresh
-  /// truoc khi request that bai hoan toan - o day chi can xu ly ket qua
-  /// cuoi cung tra ve tu Repository.
-  Future<void> _restoreSession() async {
-    final String? accessToken = await ref.read(secureStorageServiceProvider).getAccessToken();
-    if (accessToken == null || accessToken.isEmpty) {
+  Future<void> _handleAuthStateChange(supa.AuthState data) async {
+    final supa.Session? session = data.session;
+    if (session == null) {
       state = const AuthUnauthenticated();
       return;
     }
 
-    final Result<UserSession> result = await ref.read(authRepositoryProvider).getCurrentUser();
+    final Result<UserSession> result = await ref.read(authRepositoryProvider).fetchUserSession(
+          session.user.id,
+        );
+
     switch (result) {
       case Success(:final data):
         state = AuthAuthenticated(data);
       case ResultFailure():
-        // Token khong con hop le (ke ca truong hop AuthInterceptor da thu
-        // refresh nhung refresh_token cung het han) - buoc dang xuat that su.
-        await ref.read(secureStorageServiceProvider).clearTokens();
+        // Co session hop le nhung khong doc duoc `profiles` (hiem gap, vd:
+        // du lieu bi xoa thu cong) - dang xuat de tranh ket ket o trang
+        // thai "nua vay nua khong" (co session nhung khong co UserSession).
+        await ref.read(authRepositoryProvider).logout();
         state = const AuthUnauthenticated();
     }
   }
 
   /// Goi tu [LoginScreen] (US-AUTH-001 - dang nhap SDT/Password).
   ///
-  /// Tra ve `null` neu thanh cong (UI khong can tu dieu huong - xem
-  /// `route_guard.dart` se tu redirect khi state doi sang [AuthAuthenticated]).
-  /// Tra ve [Failure] neu that bai de UI tu hien thi thong bao loi tuong ung.
+  /// Tra ve `null` neu thanh cong (UI khong can tu dieu huong/tu cap nhat
+  /// state - [_handleAuthStateChange] se tu lam khi Supabase phat su kien
+  /// dang nhap). Tra ve [Failure] neu that bai de UI tu hien thi loi.
   Future<Failure?> loginWithPhonePassword({
     required String phone,
     required String password,
-  }) async {
-    final result = await ref.read(authRepositoryProvider).login(
-          phone: phone,
-          password: password,
-        );
-
-    switch (result) {
-      case Success(:final data):
-        state = AuthAuthenticated(data.user);
-        return null;
-      case ResultFailure(:final failure):
-        return failure;
-    }
+  }) {
+    return ref.read(authRepositoryProvider).login(phone: phone, password: password);
   }
 
-  /// Buoc 1 dang ky (US-AUTH-001): gui SDT + ho ten de nhan OTP.
-  ///
-  /// Tra ve nguyen [Result] (khong rut gon thanh `Failure?` nhu
-  /// [loginWithPhonePassword]) vi [RegisterScreen] can lay du lieu thanh
-  /// cong (`otpRequestId`, `expiresInSeconds`) de chuyen tiep sang [OtpScreen].
-  Future<Result<OtpRequestResult>> requestRegisterOtp({
+  /// Buoc 1 dang ky: tao user (chua active) + Supabase tu gui OTP qua SMS.
+  Future<Failure?> requestRegisterOtp({
     required String phone,
     required String fullName,
+    required String password,
   }) {
     return ref.read(authRepositoryProvider).requestRegisterOtp(
           phone: phone,
           fullName: fullName,
+          password: password,
         );
   }
 
-  /// Buoc 2 dang ky: xac thuc OTP + tao mat khau.
-  ///
-  /// Thanh cong = tu dong dang nhap (giong [loginWithPhonePassword]) -
-  /// `route_guard.dart` se tu dieu huong vao dung Shell theo role, [OtpScreen]
-  /// khong can tu dieu huong.
-  Future<Failure?> completeRegistration({
-    required String otpRequestId,
-    required String otpCode,
+  Future<Failure?> resendRegisterOtp({
+    required String phone,
+    required String fullName,
     required String password,
-  }) async {
-    final result = await ref.read(authRepositoryProvider).verifyOtpAndRegister(
-          otpRequestId: otpRequestId,
-          otpCode: otpCode,
+  }) {
+    return ref.read(authRepositoryProvider).resendRegisterOtp(
+          phone: phone,
+          fullName: fullName,
           password: password,
         );
+  }
 
-    switch (result) {
-      case Success(:final data):
-        state = AuthAuthenticated(data.user);
-        return null;
-      case ResultFailure(:final failure):
-        return failure;
-    }
+  /// Buoc 2 dang ky: xac thuc OTP. Thanh cong = tu dong dang nhap (Supabase
+  /// tra ve session, `onAuthStateChange` tu cap nhat state) - khong can tu
+  /// dieu huong o UI.
+  Future<Failure?> verifyRegisterOtp({
+    required String phone,
+    required String otpCode,
+  }) {
+    return ref.read(authRepositoryProvider).verifyRegisterOtp(phone: phone, otpCode: otpCode);
   }
 
   Future<void> signOut() async {
     await ref.read(authRepositoryProvider).logout();
-    state = const AuthUnauthenticated();
+    // Khong can tu set state = AuthUnauthenticated - Supabase se tu phat
+    // su kien `signedOut` qua `onAuthStateChange`, [_handleAuthStateChange]
+    // se tu xu ly.
   }
 
-  /// CHI DUNG CHO DEV/QA khi chua co backend that de test Role-based
-  /// routing (xem cach dung trong `LoginScreen` - duoc an sau `kDebugMode`).
-  /// KHONG duoc goi ham nay o bat ky luong nghiep vu that nao.
+  /// CHI DUNG CHO DEV/QA de test Role-based routing khi chua co du lieu
+  /// that trong Supabase (xem cach dung trong `LoginScreen`, an sau
+  /// `kDebugMode`). KHONG duoc goi ham nay o bat ky luong nghiep vu that nao.
   void debugSignInAs(UserRole role) {
     state = AuthAuthenticated(
       UserSession(userId: 'debug-user-id', fullName: 'Người dùng Demo', role: role),

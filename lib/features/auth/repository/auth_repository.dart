@@ -1,127 +1,119 @@
-import 'package:barberbook_app/core/error/exceptions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:barberbook_app/core/error/failure.dart';
-import 'package:barberbook_app/core/storage/secure_storage_service.dart';
+import 'package:barberbook_app/core/error/supabase_error_mapper.dart';
 import 'package:barberbook_app/core/utils/result.dart';
-import 'package:barberbook_app/features/auth/model/login_result.dart';
-import 'package:barberbook_app/features/auth/model/otp_request_result.dart';
 import 'package:barberbook_app/features/auth/model/user_session.dart';
-import 'package:barberbook_app/features/auth/service/auth_api_service.dart';
+import 'package:barberbook_app/features/auth/service/auth_service.dart';
 
 /// Interface truu tuong - moi Provider/Controller PHAI phu thuoc vao day,
 /// KHONG phu thuoc truc tiep [AuthRepositoryImpl] (Dependency Inversion) -
 /// de de thay the bang Fake khi viet unit test cho [AuthController].
 abstract class AuthRepository {
-  Future<Result<LoginResult>> login({required String phone, required String password});
+  /// Tra ve `null` neu thanh cong, [Failure] neu that bai. KHONG can tra ve
+  /// [UserSession] o day - [AuthController] se tu cap nhat state khi
+  /// `onAuthStateChange` phat su kien dang nhap (xem [AuthService]).
+  Future<Failure?> login({required String phone, required String password});
 
-  Future<Result<UserSession>> getCurrentUser();
-
-  /// Buoc 1 dang ky: gui SDT + ho ten, nhan ve `otp_request_id`.
-  Future<Result<OtpRequestResult>> requestRegisterOtp({
+  Future<Failure?> requestRegisterOtp({
     required String phone,
     required String fullName,
-  });
-
-  /// Buoc 2 dang ky: xac thuc OTP + tao mat khau. Thanh cong = tai khoan
-  /// duoc tao VA dang nhap luon, nen cung luu token nhu [login].
-  Future<Result<LoginResult>> verifyOtpAndRegister({
-    required String otpRequestId,
-    required String otpCode,
     required String password,
   });
+
+  Future<Failure?> resendRegisterOtp({
+    required String phone,
+    required String fullName,
+    required String password,
+  });
+
+  Future<Failure?> verifyRegisterOtp({required String phone, required String otpCode});
+
+  /// Doc ho ten + role tu bang `profiles` - dung moi khi `onAuthStateChange`
+  /// bao co session (dang nhap moi, khoi phuc phien, hoac token vua duoc
+  /// tu dong refresh).
+  Future<Result<UserSession>> fetchUserSession(String userId);
 
   Future<void> logout();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({
-    required AuthApiService apiService,
-    required SecureStorageService secureStorage,
-  })  : _apiService = apiService,
-        _secureStorage = secureStorage;
+  AuthRepositoryImpl(this._authService);
 
-  final AuthApiService _apiService;
-  final SecureStorageService _secureStorage;
+  final AuthService _authService;
 
   @override
-  Future<Result<LoginResult>> login({
-    required String phone,
-    required String password,
-  }) async {
-    try {
-      final LoginResult result = await _apiService.login(phone: phone, password: password);
-      await _secureStorage.saveTokens(
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
-      );
-      return Success(result);
-    } on AppException catch (e) {
-      return ResultFailure(mapExceptionToFailure(e));
-    }
+  Future<Failure?> login({required String phone, required String password}) {
+    return _runVoidAction(
+      () => _authService.signInWithPassword(phone: phone, password: password),
+    );
   }
 
   @override
-  Future<Result<UserSession>> getCurrentUser() async {
-    try {
-      final UserSession user = await _apiService.fetchCurrentUser();
-      return Success(user);
-    } on AppException catch (e) {
-      return ResultFailure(mapExceptionToFailure(e));
-    }
-  }
-
-  @override
-  Future<Result<OtpRequestResult>> requestRegisterOtp({
+  Future<Failure?> requestRegisterOtp({
     required String phone,
     required String fullName,
-  }) async {
-    try {
-      final OtpRequestResult result = await _apiService.requestRegisterOtp(
+    required String password,
+  }) {
+    return _runVoidAction(
+      () => _authService.signUpWithPhonePassword(
         phone: phone,
+        password: password,
         fullName: fullName,
-      );
-      return Success(result);
-    } on AppException catch (e) {
-      return ResultFailure(mapExceptionToFailure(e));
-    }
+      ),
+    );
   }
 
   @override
-  Future<Result<LoginResult>> verifyOtpAndRegister({
-    required String otpRequestId,
-    required String otpCode,
+  Future<Failure?> resendRegisterOtp({
+    required String phone,
+    required String fullName,
     required String password,
-  }) async {
+  }) {
+    return _runVoidAction(
+      () => _authService.resendSignUpOtp(phone: phone, password: password, fullName: fullName),
+    );
+  }
+
+  @override
+  Future<Failure?> verifyRegisterOtp({required String phone, required String otpCode}) {
+    return _runVoidAction(
+      () => _authService.verifySignUpOtp(phone: phone, otpCode: otpCode),
+    );
+  }
+
+  @override
+  Future<Result<UserSession>> fetchUserSession(String userId) async {
     try {
-      final LoginResult result = await _apiService.verifyOtpAndRegister(
-        otpRequestId: otpRequestId,
-        otpCode: otpCode,
-        password: password,
-      );
-      // Dang ky thanh cong = dang nhap luon, nen luu token GIONG HET logic
-      // cua `login()` - khong duoc quen buoc nay, neu khong user se bi dua
-      // ve man Login ngay sau khi vua dang ky xong (khong co token de
-      // AuthController._restoreSession() nhan dien).
-      await _secureStorage.saveTokens(
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
-      );
-      return Success(result);
-    } on AppException catch (e) {
-      return ResultFailure(mapExceptionToFailure(e));
+      final Map<String, dynamic> row = await _authService.fetchProfile(userId);
+      return Success(UserSession.fromProfileRow(row));
+    } on PostgrestException catch (e) {
+      return ResultFailure(mapSupabasePostgrestError(e));
+    } catch (_) {
+      return const ResultFailure(NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.'));
     }
   }
 
   @override
   Future<void> logout() async {
-    // Best-effort: du goi API that bai (mat mang, server loi...), VAN PHAI
-    // xoa token local trong `finally` - khong duoc de nguoi dung "ket ket"
-    // o trang thai da bam Dang xuat nhung token cu van con luu tren may.
     try {
-      await _apiService.logout();
+      await _authService.signOut();
     } catch (_) {
-      // Bo qua loi - day la best-effort, khong anh huong luong dang xuat local.
-    } finally {
-      await _secureStorage.clearTokens();
+      // Best-effort - Supabase SDK van tu xoa session luu local du goi API
+      // that bai (vd: mat mang dung luc bam Dang xuat).
+    }
+  }
+
+  /// Helper dung chung cho moi action CHI can biet thanh cong/that bai
+  /// (khong can du lieu tra ve) - tranh lap 4 khoi try/catch giong het nhau.
+  Future<Failure?> _runVoidAction(Future<void> Function() action) async {
+    try {
+      await action();
+      return null;
+    } on AuthException catch (e) {
+      return mapSupabaseAuthError(e);
+    } catch (_) {
+      return const NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.');
     }
   }
 }

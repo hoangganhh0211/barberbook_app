@@ -7,7 +7,6 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
-import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
@@ -15,25 +14,26 @@ import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 /// Du lieu can truyen tu [RegisterScreen] sang [OtpScreen] qua `extra` cua
 /// go_router. KHONG phai domain model (khong dung o Repository/Service) -
 /// chi la DTO cho 1 lan dieu huong, nen de o day thay vi thu muc `model/`.
+///
+/// `password` van can truyen tiep de dung khi "Gui lai ma" - Supabase yeu
+/// cau goi lai `signUp()` (voi cung password) de gui lai OTP, KHONG co API
+/// "resend" tach rieng cho luong dang ky bang SDT+Password.
 class OtpScreenArgs {
   const OtpScreenArgs({
     required this.phone,
     required this.fullName,
     required this.password,
-    required this.otpRequestId,
-    required this.expiresInSeconds,
   });
 
   final String phone;
   final String fullName;
   final String password;
-  final String otpRequestId;
-  final int expiresInSeconds;
 }
 
 /// Man Nhap OTP - Buoc 2/2 cua luong US-AUTH-001. Xac thuc ma OTP + hoan
-/// tat tao tai khoan. Thanh cong se tu dong dang nhap (AuthController da xu
-/// ly), `route_guard.dart` tu dieu huong vao dung Shell - man nay KHONG tu
+/// tat tao tai khoan. Thanh cong se tu dong dang nhap (Supabase tra ve
+/// session, `AuthController` tu cap nhat state qua `onAuthStateChange`),
+/// `route_guard.dart` tu dieu huong vao dung Shell - man nay KHONG tu
 /// dieu huong.
 class OtpScreen extends ConsumerStatefulWidget {
   const OtpScreen({required this.args, super.key});
@@ -45,10 +45,14 @@ class OtpScreen extends ConsumerStatefulWidget {
 }
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
+  /// Supabase KHONG tra ve thoi gian het han OTP qua API - dung 1 gia tri
+  /// co dinh hop ly o client. Neu Backend/Supabase cau hinh khac, chi can
+  /// sua so nay, khong anh huong logic con lai.
+  static const int _otpValiditySeconds = 60;
+
   final _otpController = TextEditingController();
 
-  late String _currentOtpRequestId;
-  late int _remainingSeconds;
+  int _remainingSeconds = _otpValiditySeconds;
   Timer? _countdownTimer;
 
   String _otpCode = '';
@@ -58,8 +62,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   void initState() {
     super.initState();
-    _currentOtpRequestId = widget.args.otpRequestId;
-    _remainingSeconds = widget.args.expiresInSeconds;
     _startCountdown();
   }
 
@@ -72,6 +74,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   void _startCountdown() {
     _countdownTimer?.cancel();
+    _remainingSeconds = _otpValiditySeconds;
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds <= 1) {
         timer.cancel();
@@ -85,25 +88,22 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Future<void> _handleResend() async {
     setState(() => _isResending = true);
 
-    final result = await ref.read(authControllerProvider.notifier).requestRegisterOtp(
+    final Failure? failure = await ref.read(authControllerProvider.notifier).resendRegisterOtp(
           phone: widget.args.phone,
           fullName: widget.args.fullName,
+          password: widget.args.password,
         );
 
     if (!mounted) return;
     setState(() => _isResending = false);
 
-    switch (result) {
-      case Success(:final data):
-        _otpController.clear();
-        setState(() {
-          _currentOtpRequestId = data.otpRequestId;
-          _remainingSeconds = data.expiresInSeconds;
-        });
-        _startCountdown();
-        _showSnackBar('Đã gửi lại mã OTP', isError: false);
-      case ResultFailure(:final failure):
-        _showSnackBar(failure.message, isError: true);
+    if (failure == null) {
+      _otpController.clear();
+      setState(() => _otpCode = '');
+      _startCountdown();
+      _showSnackBar('Đã gửi lại mã OTP', isError: false);
+    } else {
+      _showSnackBar(failure.message, isError: true);
     }
   }
 
@@ -112,10 +112,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     setState(() => _isVerifying = true);
 
-    final Failure? failure = await ref.read(authControllerProvider.notifier).completeRegistration(
-          otpRequestId: _currentOtpRequestId,
+    final Failure? failure = await ref.read(authControllerProvider.notifier).verifyRegisterOtp(
+          phone: widget.args.phone,
           otpCode: _otpCode,
-          password: widget.args.password,
         );
 
     if (!mounted) return;

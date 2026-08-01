@@ -135,12 +135,13 @@ class __$$UserSessionImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$UserSessionImpl implements _UserSession {
+class _$UserSessionImpl extends _UserSession {
   const _$UserSessionImpl(
       {@JsonKey(name: 'user_id') required this.userId,
       @JsonKey(name: 'full_name') required this.fullName,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
-      required this.role});
+      required this.role})
+      : super._();
 
   factory _$UserSessionImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserSessionImplFromJson(json);
@@ -191,12 +192,13 @@ class _$UserSessionImpl implements _UserSession {
   }
 }
 
-abstract class _UserSession implements UserSession {
+abstract class _UserSession extends UserSession {
   const factory _UserSession(
       {@JsonKey(name: 'user_id') required final String userId,
       @JsonKey(name: 'full_name') required final String fullName,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
       required final UserRole role}) = _$UserSessionImpl;
+  const _UserSession._() : super._();
 
   factory _UserSession.fromJson(Map<String, dynamic> json) =
       _$UserSessionImpl.fromJson;

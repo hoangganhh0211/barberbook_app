@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
-import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/core/utils/validators.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
@@ -53,35 +52,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final String fullName = _fullNameController.text.trim();
     final String password = _passwordController.text;
 
-    final result = await ref.read(authControllerProvider.notifier).requestRegisterOtp(
+    final failure = await ref.read(authControllerProvider.notifier).requestRegisterOtp(
           phone: phone,
           fullName: fullName,
+          password: password,
         );
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
-    switch (result) {
-      case Success(:final data):
-        // Chuyen sang man OTP kem theo du lieu can de xac thuc + hien
-        // dem nguoc dung thoi gian server quy dinh - KHONG luu gi vao
-        // AuthState o day (xem doc comment dau file).
-        context.push(
-          RoutePaths.registerOtp,
-          extra: OtpScreenArgs(
-            phone: phone,
-            fullName: fullName,
-            password: password,
-            otpRequestId: data.otpRequestId,
-            expiresInSeconds: data.expiresInSeconds,
-          ),
+    if (failure == null) {
+      // Chuyen sang man OTP kem theo du lieu can de xac thuc/gui lai ma -
+      // KHONG luu gi vao AuthState o day (xem doc comment dau file).
+      context.push(
+        RoutePaths.registerOtp,
+        extra: OtpScreenArgs(phone: phone, fullName: fullName, password: password),
+      );
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
         );
-      case ResultFailure(:final failure):
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
-          );
     }
   }
 
