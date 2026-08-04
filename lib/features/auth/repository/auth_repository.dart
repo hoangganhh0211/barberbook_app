@@ -15,19 +15,13 @@ abstract class AuthRepository {
   /// `onAuthStateChange` phat su kien dang nhap (xem [AuthService]).
   Future<Failure?> login({required String phone, required String password});
 
-  Future<Failure?> requestRegisterOtp({
+  /// Dang ky bang SDT + Ho ten + Mat khau - KHONG qua buoc OTP. Thanh cong
+  /// = tao tai khoan VA dang nhap luon ngay lap tuc.
+  Future<Failure?> register({
     required String phone,
     required String fullName,
     required String password,
   });
-
-  Future<Failure?> resendRegisterOtp({
-    required String phone,
-    required String fullName,
-    required String password,
-  });
-
-  Future<Failure?> verifyRegisterOtp({required String phone, required String otpCode});
 
   /// Doc ho ten + role tu bang `profiles` - dung moi khi `onAuthStateChange`
   /// bao co session (dang nhap moi, khoi phuc phien, hoac token vua duoc
@@ -50,7 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Failure?> requestRegisterOtp({
+  Future<Failure?> register({
     required String phone,
     required String fullName,
     required String password,
@@ -61,24 +55,6 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         fullName: fullName,
       ),
-    );
-  }
-
-  @override
-  Future<Failure?> resendRegisterOtp({
-    required String phone,
-    required String fullName,
-    required String password,
-  }) {
-    return _runVoidAction(
-      () => _authService.resendSignUpOtp(phone: phone, password: password, fullName: fullName),
-    );
-  }
-
-  @override
-  Future<Failure?> verifyRegisterOtp({required String phone, required String otpCode}) {
-    return _runVoidAction(
-      () => _authService.verifySignUpOtp(phone: phone, otpCode: otpCode),
     );
   }
 
@@ -105,7 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   /// Helper dung chung cho moi action CHI can biet thanh cong/that bai
-  /// (khong can du lieu tra ve) - tranh lap 4 khoi try/catch giong het nhau.
+  /// (khong can du lieu tra ve) - tranh lap try/catch giong het nhau.
   Future<Failure?> _runVoidAction(Future<void> Function() action) async {
     try {
       await action();

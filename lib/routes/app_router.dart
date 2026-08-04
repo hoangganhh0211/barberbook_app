@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/widgets/placeholder_screen.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/auth/screen/login_screen.dart';
-import 'package:barberbook_app/features/auth/screen/otp_screen.dart';
 import 'package:barberbook_app/features/auth/screen/register_screen.dart';
 import 'package:barberbook_app/features/home_customer/screen/customer_shell_screen.dart';
 import 'package:barberbook_app/features/partner_dashboard/screen/partner_shell_screen.dart';
@@ -40,23 +38,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.register,
         builder: (context, state) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: RoutePaths.registerOtp,
-        builder: (context, state) {
-          final Object? extra = state.extra;
-          if (extra is OtpScreenArgs) {
-            return OtpScreen(args: extra);
-          }
-          // Truong hop hiem: nguoi dung vao thang URL nay (vd: reload trang
-          // tren Flutter Web) ma khong qua RegisterScreen nen thieu `extra` -
-          // dua ve lai man Dang ky thay vi de app crash vi thieu du lieu.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.go(RoutePaths.register);
-          });
-          return const Scaffold(
-              body: Center(child: CircularProgressIndicator()));
-        },
       ),
 
       // ----- Customer Shell -----

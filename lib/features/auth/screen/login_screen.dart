@@ -113,7 +113,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   autofillHints: const [AutofillHints.telephoneNumber],
                   style: AppTextStyles.bodyRegular,
                   decoration: const InputDecoration(
-                    hintText: '0912 345 678',
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
                   validator: Validators.phone,
@@ -130,7 +129,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   autofillHints: const [AutofillHints.password],
                   onFieldSubmitted: (_) => _handleLogin(),
                   decoration: InputDecoration(
-                    hintText: 'Nhập mật khẩu',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -155,45 +153,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   label: 'Đăng nhập',
                   isLoading: _isSubmitting,
                   onPressed: _handleLogin,
-                ),
-                const SizedBox(height: 28),
-
-                Row(
-                  children: [
-                    const Expanded(child: Divider(color: AppColors.border)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('hoặc', style: AppTextStyles.caption),
-                    ),
-                    const Expanded(child: Divider(color: AppColors.border)),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Nut Google/Facebook: UI da san theo dung Figma, nhung
-                // CHUA wiring that (can them package `google_sign_in`,
-                // `flutter_facebook_auth` va API `ApiEndpoints.socialLogin`
-                // - se hoan thien cung phan con lai cua Sprint 1).
-                OutlinedButton(
-                  onPressed: _isSubmitting ? null : () => _showComingSoon('Đăng nhập Google'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Colors.white,
-                        child: Text('G', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black87)),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text('Tiếp tục với Google'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _isSubmitting ? null : () => _showComingSoon('Đăng nhập Facebook'),
-                  icon: const Icon(Icons.facebook, color: Color(0xFF1877F2)),
-                  label: const Text('Tiếp tục với Facebook'),
                 ),
                 const SizedBox(height: 28),
 

@@ -2,10 +2,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Tang DUY NHAT trong feature Auth duoc phep import `supabase_flutter`.
 ///
-/// So voi `AuthApiService` (dung Dio) truoc day, class nay KHONG tu quan ly
-/// token/refresh - Supabase SDK da lam viec do ben trong. Repository/Provider
-/// phia tren van giu nguyen "hinh dang" (Result/Failure), chi thay doi cach
-/// class nay hien thuc ben trong.
+/// GIAI PHAP KY THUAT: Supabase bat buoc phai co 1 SMS provider (Twilio...)
+/// moi cho bat "Phone provider" - de tranh phu thuoc/chi phi ben thu 3
+/// khong can thiet (app khong dung OTP), ta dung EMAIL provider (mien phi,
+/// luon san co) nhung "gia lap" SDT thanh 1 email noi bo duy nhat cho moi
+/// SDT. Nguoi dung KHONG BAO GIO thay khai niem email - Repository/Controller/
+/// Screen phia tren van chi lam viec voi `phone` nhu binh thuong, khong sua
+/// gi ca (xem [_phoneToSyntheticEmail]).
 class AuthService {
   AuthService(this._client);
 
@@ -15,8 +18,7 @@ class AuthService {
 
   /// Stream phat ra moi khi trang thai dang nhap thay doi (dang nhap, dang
   /// xuat, token duoc tu dong refresh...). Day la "nguon su that" chinh de
-  /// [AuthController] lang nghe - THAY THE hoan toan cho viec tu goi API
-  /// `/auth/me` nhu kien truc REST truoc day.
+  /// [AuthController] lang nghe.
   Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
 
   Session? get currentSession => _auth.currentSession;
@@ -25,52 +27,52 @@ class AuthService {
     required String phone,
     required String password,
   }) {
-    return _auth.signInWithPassword(phone: phone, password: password);
+    return _auth.signInWithPassword(
+      email: _phoneToSyntheticEmail(phone),
+      password: password,
+    );
   }
 
-  /// Buoc 1 dang ky (US-AUTH-001): tao user (o trang thai CHUA active) +
-  /// Supabase tu dong gui OTP qua SMS. Chua co session ngay - phai xac
-  /// thuc OTP o buoc sau ([verifySignUpOtp]) moi thuc su dang nhap duoc.
-  ///
-  /// `data: {'full_name': fullName}` duoc luu vao `raw_user_meta_data` cua
-  /// Supabase - trigger `handle_new_user()` trong `supabase/schema.sql` se
-  /// doc gia tri nay de tao dong tuong ung trong bang `profiles`.
   Future<AuthResponse> signUpWithPhonePassword({
     required String phone,
     required String password,
     required String fullName,
   }) {
+    final String normalizedPhone = _normalizePhone(phone);
     return _auth.signUp(
-      phone: phone,
+      email: _phoneToSyntheticEmail(phone),
       password: password,
-      data: {'full_name': fullName},
+      data: {'full_name': fullName, 'phone': normalizedPhone},
     );
   }
 
-  /// Buoc 2 dang ky: xac thuc ma OTP vua nhan qua SMS. Thanh cong se tra ve
-  /// session (tu dong dang nhap luon, khong bat nguoi dung dang nhap lai).
-  Future<AuthResponse> verifySignUpOtp({
-    required String phone,
-    required String otpCode,
-  }) {
-    return _auth.verifyOTP(type: OtpType.sms, phone: phone, token: otpCode);
-  }
-
-  /// Gui lai OTP cho SDT dang cho xac thuc (dung LAI signUp - Supabase tu
-  /// nhan dien day la yeu cau gui lai neu user chua duoc xac thuc).
-  Future<void> resendSignUpOtp({
-    required String phone,
-    required String password,
-    required String fullName,
-  }) {
-    return signUpWithPhonePassword(phone: phone, password: password, fullName: fullName);
-  }
-
-  /// Doc thong tin mo rong (ho ten, role) tu bang `profiles` - Supabase Auth
-  /// mac dinh KHONG co san 2 field nay (xem doc comment trong `UserSession`).
+  /// Doc thong tin mo rong (ho ten, role, SDT that) tu bang `profiles` -
+  /// Supabase Auth mac dinh KHONG co san full_name/role, va `phone` trong
+  /// `auth.users` luc nay dang de trong (vi dung Email provider) - SDT that
+  /// nam trong `profiles.phone`, duoc luu tu `data: {'phone': ...}` o tren.
   Future<Map<String, dynamic>> fetchProfile(String userId) {
     return _client.from('profiles').select().eq('id', userId).single();
   }
 
   Future<void> signOut() => _auth.signOut();
+
+  /// Chuyen SDT thanh 1 email noi bo DUY NHAT va ON DINH - cung 1 SDT nhap
+  /// kieu nao ("0912xxxxxx" hay "+84912xxxxxx") deu ra CUNG 1 email (nho
+  /// [_normalizePhone]), de dang nhap luon khop voi luc dang ky.
+  String _phoneToSyntheticEmail(String phone) {
+    return '${_normalizePhone(phone)}@barber.com';
+  }
+
+  /// Chuan hoa SDT ve dang chi gom chu so, luon bat dau bang "84" (bo dau
+  /// "+" va doi tien to "0" thanh "84") - tranh truong hop 1 SDT thuc te
+  /// nhung go 2 kieu khac nhau bi tinh la 2 tai khoan khac nhau.
+  String _normalizePhone(String phone) {
+    String digits = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    if (digits.startsWith('+84')) {
+      digits = '84${digits.substring(3)}';
+    } else if (digits.startsWith('0')) {
+      digits = '84${digits.substring(1)}';
+    }
+    return digits;
+  }
 }

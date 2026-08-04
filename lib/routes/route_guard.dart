@@ -33,9 +33,7 @@ String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
   // "Pre-auth area": cac man nguoi dung CHUA dang nhap duoc phep dung lai -
   // dang ky them man moi (vd: Quen mat khau) CHI can them vao list nay,
   // khong phai sua logic redirect.
-  final bool isOnPreAuthArea = location == RoutePaths.login ||
-      location == RoutePaths.register ||
-      location == RoutePaths.registerOtp;
+  final bool isOnPreAuthArea = location == RoutePaths.login || location == RoutePaths.register;
   final bool isOnCustomerArea = location.startsWith(RoutePaths.customerRoot);
   final bool isOnPartnerArea = location.startsWith(RoutePaths.partnerRoot);
 

@@ -95,39 +95,19 @@ class AuthController extends Notifier<AuthState> {
     return ref.read(authRepositoryProvider).login(phone: phone, password: password);
   }
 
-  /// Buoc 1 dang ky: tao user (chua active) + Supabase tu gui OTP qua SMS.
-  Future<Failure?> requestRegisterOtp({
+  /// Dang ky tai khoan moi (US-AUTH-001 - rut gon, KHONG qua OTP). Thanh
+  /// cong = tu dong dang nhap luon (Supabase tra ve session ngay,
+  /// `onAuthStateChange` tu cap nhat state) - UI khong can tu dieu huong.
+  Future<Failure?> register({
     required String phone,
     required String fullName,
     required String password,
   }) {
-    return ref.read(authRepositoryProvider).requestRegisterOtp(
+    return ref.read(authRepositoryProvider).register(
           phone: phone,
           fullName: fullName,
           password: password,
         );
-  }
-
-  Future<Failure?> resendRegisterOtp({
-    required String phone,
-    required String fullName,
-    required String password,
-  }) {
-    return ref.read(authRepositoryProvider).resendRegisterOtp(
-          phone: phone,
-          fullName: fullName,
-          password: password,
-        );
-  }
-
-  /// Buoc 2 dang ky: xac thuc OTP. Thanh cong = tu dong dang nhap (Supabase
-  /// tra ve session, `onAuthStateChange` tu cap nhat state) - khong can tu
-  /// dieu huong o UI.
-  Future<Failure?> verifyRegisterOtp({
-    required String phone,
-    required String otpCode,
-  }) {
-    return ref.read(authRepositoryProvider).verifyRegisterOtp(phone: phone, otpCode: otpCode);
   }
 
   Future<void> signOut() async {
