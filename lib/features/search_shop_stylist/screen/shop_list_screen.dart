@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/widgets/async_value_widget.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_list_item.dart';
+import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
 
 /// Man goc cua tab "Tiem" (US-SEARCH-008 - ban rut gon Sprint 2: tim kiem
@@ -85,10 +87,7 @@ class _ShopListScreenState extends ConsumerState<ShopListScreen> {
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) => ShopListItem(
                   shop: shops[index],
-                  onTap: () {
-                    // TODO(Sprint2-chuc-nang-4): push toi man Chi tiet Tiem,
-                    // truyen shops[index].id.
-                  },
+                  onTap: () => context.push(RoutePaths.customerShopDetail(shops[index].id)),
                 ),
               ),
             ),

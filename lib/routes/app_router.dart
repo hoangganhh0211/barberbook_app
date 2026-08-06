@@ -6,7 +6,9 @@ import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/auth/screen/login_screen.dart';
 import 'package:barberbook_app/features/auth/screen/register_screen.dart';
 import 'package:barberbook_app/features/home_customer/screen/customer_shell_screen.dart';
+import 'package:barberbook_app/features/home_customer/screen/home_customer_screen.dart';
 import 'package:barberbook_app/features/partner_dashboard/screen/partner_shell_screen.dart';
+import 'package:barberbook_app/features/search_shop_stylist/screen/shop_detail_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_list_screen.dart';
 import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
 import 'package:barberbook_app/routes/route_guard.dart';
@@ -40,6 +42,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.register,
         builder: (context, state) => const RegisterScreen(),
       ),
+      GoRoute(
+        // '/customer/shops/:shopId' - route RIENG, KHONG nam trong
+        // StatefulShellRoute cua Customer Shell (xem branch customerShops
+        // ben duoi) de KHONG hien Bottom Navigation tren man Chi tiet.
+        path: '${RoutePaths.customerShops}/:shopId',
+        builder: (context, state) {
+          final String shopId = state.pathParameters['shopId']!;
+          return ShopDetailScreen(shopId: shopId);
+        },
+      ),
 
       // ----- Customer Shell -----
       StatefulShellRoute.indexedStack(
@@ -49,8 +61,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.customerHome,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Trang chủ - Khách hàng'),
+              builder: (context, state) => const HomeCustomerScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

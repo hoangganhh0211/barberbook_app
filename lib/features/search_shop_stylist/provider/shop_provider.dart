@@ -31,3 +31,17 @@ final shopListProvider = FutureProvider.family<List<ShopModel>, String>((ref, se
       throw failure;
   }
 });
+
+/// Chi tiet 1 tiem theo [shopId] - dung cho `ShopDetailScreen`. Tach rieng
+/// khoi [shopListProvider] (chu khong tim trong list da co san trong bo
+/// nho) vi nguoi dung co the vao thang man Chi tiet qua deep link, khi do
+/// [shopListProvider] chua chac da duoc goi truoc do.
+final shopDetailProvider = FutureProvider.family<ShopModel, String>((ref, shopId) async {
+  final result = await ref.watch(shopRepositoryProvider).fetchShopById(shopId);
+  switch (result) {
+    case Success(:final data):
+      return data;
+    case ResultFailure(:final failure):
+      throw failure;
+  }
+});

@@ -11,6 +11,10 @@ abstract class RoutePaths {
   static const String customerHome = '/customer/home';
   static const String customerBookings = '/customer/bookings'; // tab "Dat lich"
   static const String customerShops = '/customer/shops'; // tab "Tiem" (gop chuc nang tim kiem + danh sach tiem)
+
+  /// Path man Chi tiet Tiem - route RIENG (khong nam trong ShellRoute) de
+  /// khong hien Bottom Navigation, dung `context.push(customerShopDetail(id))`.
+  static String customerShopDetail(String shopId) => '$customerShops/$shopId';
   static const String customerNotifications = '/customer/notifications'; // tab "Thong bao"
   static const String customerProfile = '/customer/profile'; // tab "Thong tin"
 
