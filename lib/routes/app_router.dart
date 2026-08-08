@@ -5,6 +5,10 @@ import 'package:barberbook_app/core/widgets/placeholder_screen.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/auth/screen/login_screen.dart';
 import 'package:barberbook_app/features/auth/screen/register_screen.dart';
+import 'package:barberbook_app/features/booking/screen/booking_confirm_screen.dart';
+import 'package:barberbook_app/features/booking/screen/booking_date_time_screen.dart';
+import 'package:barberbook_app/features/booking/screen/booking_service_staff_screen.dart';
+import 'package:barberbook_app/features/booking/screen/my_bookings_screen.dart';
 import 'package:barberbook_app/features/home_customer/screen/customer_shell_screen.dart';
 import 'package:barberbook_app/features/home_customer/screen/home_customer_screen.dart';
 import 'package:barberbook_app/features/partner_dashboard/screen/partner_shell_screen.dart';
@@ -52,6 +56,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return ShopDetailScreen(shopId: shopId);
         },
       ),
+      GoRoute(
+        path: RoutePaths.bookingSelectServiceStaff,
+        builder: (context, state) => const BookingServiceStaffScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.bookingSelectDateTime,
+        builder: (context, state) => const BookingDateTimeScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.bookingConfirm,
+        builder: (context, state) => const BookingConfirmScreen(),
+      ),
 
       // ----- Customer Shell -----
       StatefulShellRoute.indexedStack(
@@ -67,8 +83,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.customerBookings,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Đặt lịch'),
+              builder: (context, state) => const MyBookingsScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

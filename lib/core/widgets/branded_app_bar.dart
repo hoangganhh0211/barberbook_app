@@ -12,8 +12,8 @@ import 'package:barberbook_app/core/widgets/app_logo.dart';
 ///   khoan, Chinh sach...).
 ///
 /// Bien the thu 4 trong Figma (co badge "Mo cua" + nut yeu thich) la AppBar
-/// RIENG cua man Chi tiet Tiem, se tao o Sprint 2 (`shop_detail_app_bar.dart`),
-/// KHONG dua vao day de tranh widget nay "gong minh" nhieu use-case khac nhau.
+/// RIENG cua man Chi tiet Tiem (`shop_detail_app_bar.dart`), KHONG dua vao
+/// day de tranh widget nay "gong minh" nhieu use-case khac nhau.
 enum BrandedAppBarVariant { logoCentered, titleOnly }
 
 class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -21,6 +21,7 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.variant = BrandedAppBarVariant.logoCentered,
     this.showBackButton = false,
     this.actions,
+    this.bottom,
     super.key,
   });
 
@@ -28,8 +29,14 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final List<Widget>? actions;
 
+  /// Widget phu ben duoi AppBar (vd: `TabBar`) - dung cho man co nhieu tab
+  /// con (vd: tab "Dat lich": Sap toi/Lich su, xem `my_bookings_screen.dart`).
+  /// Mac dinh `null` - moi man goc khac KHONG bi anh huong.
+  final PreferredSizeWidget? bottom;
+
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +50,7 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? const AppLogo(iconBoxSize: 28, titleFontSize: 18)
           : Text('BarberBook', style: AppTextStyles.brandTitle(fontSize: 18)),
       actions: actions,
+      bottom: bottom,
     );
   }
 }

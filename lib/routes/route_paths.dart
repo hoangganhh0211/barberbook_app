@@ -55,4 +55,10 @@ abstract class RoutePaths {
   static const String partnerSecurity = '/partner/profile/security';
 
   static const String partnerSupport = '/partner/profile/support';
+
+  // ----- Booking Flow (US-BOOKING-009) - route RIENG ngoai Shell, khong -----
+  // hien Bottom Navigation (dung 1 luong wizard toan man hinh).
+  static const String bookingSelectServiceStaff = '/booking/select';
+  static const String bookingSelectDateTime = '/booking/datetime';
+  static const String bookingConfirm = '/booking/confirm';
 }

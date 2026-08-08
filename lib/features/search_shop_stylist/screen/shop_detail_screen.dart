@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
+import 'package:barberbook_app/features/booking/provider/booking_draft_provider.dart';
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_cover_image.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_detail_app_bar.dart';
+import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
 
 /// Man Chi tiet Tiem - vao tu [ShopListItem]/`FeaturedShopCard` (tab
 /// Tiem/Home) qua `context.push(RoutePaths.customerShopDetail(shopId))`.
-///
-/// Sprint 2 CHI hien thi thong tin - nut "Dat lich ngay" la placeholder,
-/// se noi that voi luong Booking o Sprint 3 (US-BOOKING-009).
 class ShopDetailScreen extends ConsumerWidget {
   const ShopDetailScreen({required this.shopId, super.key});
 
@@ -88,13 +88,8 @@ class ShopDetailScreen extends ConsumerWidget {
                   AppPrimaryButton(
                     label: 'Đặt lịch ngay',
                     onPressed: () {
-                      // TODO(Sprint3-Booking): noi voi luong chon dich vu ->
-                      // tho -> slot (US-BOOKING-009).
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          const SnackBar(content: Text('Tính năng Đặt lịch sẽ có ở Sprint 3')),
-                        );
+                      ref.read(bookingDraftControllerProvider.notifier).start(shop.id);
+                      context.push(RoutePaths.bookingSelectServiceStaff);
                     },
                   ),
                 ],

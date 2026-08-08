@@ -57,7 +57,7 @@ abstract class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         // Vien do khi loi - dung theo muc 4.2.3 "Vien do #EF4444 bao quanh input".
         errorBorder: OutlineInputBorder(
@@ -72,6 +72,16 @@ abstract class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          // CHI DINH RO backgroundColor - KHONG de mac dinh lay tu
+          // `colorScheme.primary`. Ly do: `ColorScheme.fromSeed()` (dung o
+          // tren) tu tinh toan lai 1 tong mau "primary" theo thuat toan
+          // Material 3 (uu tien do tuong phan/hai hoa tong the), KHONG giu
+          // nguyen chinh xac gia tri seed - dan tren Dark Mode ra 1 mau nau
+          // xin thay vi cam thuong hieu that (#F97316), khien nut bam gan
+          // nhu "mat chu" vi ca nen lan chu deu toi.
+          backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.35),
+          disabledForegroundColor: AppColors.onPrimary.withOpacity(0.6),
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: AppTextStyles.titleMedium.copyWith(color: AppColors.onPrimary),
@@ -80,8 +90,17 @@ abstract class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          // Cung ly do voi elevatedButtonTheme o tren - chi dinh ro thay vi
+          // de mac dinh lay tu `colorScheme.primary`.
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary),
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
