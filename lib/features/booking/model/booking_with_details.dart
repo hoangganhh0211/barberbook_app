@@ -14,6 +14,7 @@ part 'booking_with_details.g.dart';
 class BookingWithDetails with _$BookingWithDetails {
   const factory BookingWithDetails({
     required String id,
+    @JsonKey(name: 'shop_id') required String shopId,
     @JsonKey(name: 'start_time') required DateTime startTime,
     @JsonKey(name: 'end_time') required DateTime endTime,
     @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson) required BookingStatus status,

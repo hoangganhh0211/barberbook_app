@@ -11,13 +11,18 @@ import 'package:barberbook_app/features/search_shop_stylist/widget/shop_cover_im
 /// [ShopCoverImage] (feature khac) - chap nhan phu thuoc cheo feature vi
 /// day la widget hien thi thuan tuy, khong keo theo logic nghiep vu.
 class BookingListItem extends StatelessWidget {
-  const BookingListItem({required this.booking, this.onCancel, super.key});
+  const BookingListItem({required this.booking, this.onCancel, this.onReview, super.key});
 
   final BookingWithDetails booking;
 
   /// `null` = khong hien nut Huy (dung cho tab "Lich su" - booking da
   /// completed/cancelled thi khong the huy them).
   final VoidCallback? onCancel;
+
+  /// `null` = khong hien nut Danh gia. Chi truyen khi `booking.status ==
+  /// BookingStatus.completed` - man goi (`MyBookingsScreen`) chiu trach
+  /// nhiem kiem tra dieu kien nay.
+  final VoidCallback? onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -76,20 +81,34 @@ class BookingListItem extends StatelessWidget {
               Text(Formatters.currency(booking.totalPrice), style: AppTextStyles.bodySecondary),
             ],
           ),
-          if (onCancel != null) ...[
+          if (onCancel != null || onReview != null) ...[
             const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: onCancel,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.error,
-                  side: const BorderSide(color: AppColors.error),
-                  minimumSize: const Size(0, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                child: const Text('Huỷ lịch'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (onCancel != null)
+                  OutlinedButton(
+                    onPressed: onCancel,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    child: const Text('Huỷ lịch'),
+                  ),
+                if (onReview != null) ...[
+                  if (onCancel != null) const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: onReview,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    child: const Text('Đánh giá'),
+                  ),
+                ],
+              ],
             ),
           ],
         ],

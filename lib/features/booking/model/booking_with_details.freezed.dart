@@ -21,6 +21,8 @@ BookingWithDetails _$BookingWithDetailsFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$BookingWithDetails {
   String get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shop_id')
+  String get shopId => throw _privateConstructorUsedError;
   @JsonKey(name: 'start_time')
   DateTime get startTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'end_time')
@@ -52,6 +54,7 @@ abstract class $BookingWithDetailsCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      @JsonKey(name: 'shop_id') String shopId,
       @JsonKey(name: 'start_time') DateTime startTime,
       @JsonKey(name: 'end_time') DateTime endTime,
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
@@ -80,6 +83,7 @@ class _$BookingWithDetailsCopyWithImpl<$Res, $Val extends BookingWithDetails>
   @override
   $Res call({
     Object? id = null,
+    Object? shopId = null,
     Object? startTime = null,
     Object? endTime = null,
     Object? status = null,
@@ -91,6 +95,10 @@ class _$BookingWithDetailsCopyWithImpl<$Res, $Val extends BookingWithDetails>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      shopId: null == shopId
+          ? _value.shopId
+          : shopId // ignore: cast_nullable_to_non_nullable
               as String,
       startTime: null == startTime
           ? _value.startTime
@@ -150,6 +158,7 @@ abstract class _$$BookingWithDetailsImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
+      @JsonKey(name: 'shop_id') String shopId,
       @JsonKey(name: 'start_time') DateTime startTime,
       @JsonKey(name: 'end_time') DateTime endTime,
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
@@ -178,6 +187,7 @@ class __$$BookingWithDetailsImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? shopId = null,
     Object? startTime = null,
     Object? endTime = null,
     Object? status = null,
@@ -189,6 +199,10 @@ class __$$BookingWithDetailsImplCopyWithImpl<$Res>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      shopId: null == shopId
+          ? _value.shopId
+          : shopId // ignore: cast_nullable_to_non_nullable
               as String,
       startTime: null == startTime
           ? _value.startTime
@@ -223,6 +237,7 @@ class __$$BookingWithDetailsImplCopyWithImpl<$Res>
 class _$BookingWithDetailsImpl implements _BookingWithDetails {
   const _$BookingWithDetailsImpl(
       {required this.id,
+      @JsonKey(name: 'shop_id') required this.shopId,
       @JsonKey(name: 'start_time') required this.startTime,
       @JsonKey(name: 'end_time') required this.endTime,
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
@@ -236,6 +251,9 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
 
   @override
   final String id;
+  @override
+  @JsonKey(name: 'shop_id')
+  final String shopId;
   @override
   @JsonKey(name: 'start_time')
   final DateTime startTime;
@@ -257,7 +275,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
 
   @override
   String toString() {
-    return 'BookingWithDetails(id: $id, startTime: $startTime, endTime: $endTime, status: $status, totalPrice: $totalPrice, shop: $shop, service: $service)';
+    return 'BookingWithDetails(id: $id, shopId: $shopId, startTime: $startTime, endTime: $endTime, status: $status, totalPrice: $totalPrice, shop: $shop, service: $service)';
   }
 
   @override
@@ -266,6 +284,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
         (other.runtimeType == runtimeType &&
             other is _$BookingWithDetailsImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.shopId, shopId) || other.shopId == shopId) &&
             (identical(other.startTime, startTime) ||
                 other.startTime == startTime) &&
             (identical(other.endTime, endTime) || other.endTime == endTime) &&
@@ -278,8 +297,8 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, startTime, endTime, status, totalPrice, shop, service);
+  int get hashCode => Object.hash(runtimeType, id, shopId, startTime, endTime,
+      status, totalPrice, shop, service);
 
   /// Create a copy of BookingWithDetails
   /// with the given fields replaced by the non-null parameter values.
@@ -301,6 +320,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
 abstract class _BookingWithDetails implements BookingWithDetails {
   const factory _BookingWithDetails(
       {required final String id,
+      @JsonKey(name: 'shop_id') required final String shopId,
       @JsonKey(name: 'start_time') required final DateTime startTime,
       @JsonKey(name: 'end_time') required final DateTime endTime,
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
@@ -315,6 +335,9 @@ abstract class _BookingWithDetails implements BookingWithDetails {
 
   @override
   String get id;
+  @override
+  @JsonKey(name: 'shop_id')
+  String get shopId;
   @override
   @JsonKey(name: 'start_time')
   DateTime get startTime;

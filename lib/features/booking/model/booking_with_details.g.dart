@@ -10,6 +10,7 @@ _$BookingWithDetailsImpl _$$BookingWithDetailsImplFromJson(
         Map<String, dynamic> json) =>
     _$BookingWithDetailsImpl(
       id: json['id'] as String,
+      shopId: json['shop_id'] as String,
       startTime: DateTime.parse(json['start_time'] as String),
       endTime: DateTime.parse(json['end_time'] as String),
       status: _statusFromJson(json['status'] as String),
@@ -23,6 +24,7 @@ Map<String, dynamic> _$$BookingWithDetailsImplToJson(
         _$BookingWithDetailsImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'shop_id': instance.shopId,
       'start_time': instance.startTime.toIso8601String(),
       'end_time': instance.endTime.toIso8601String(),
       'status': _statusToJson(instance.status),

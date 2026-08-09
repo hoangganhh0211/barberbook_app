@@ -11,6 +11,7 @@ import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/booking/provider/booking_providers.dart';
 import 'package:barberbook_app/features/booking/widget/booking_list_item.dart';
+import 'package:barberbook_app/features/review/widget/write_review_sheet.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 
 /// Man goc cua tab "Dat lich" (US-MYBOOKING-010) - 2 tab "Sap toi" (pending/
@@ -63,6 +64,20 @@ class MyBookingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _handleReview(BuildContext context, BookingWithDetails booking) async {
+    await showWriteReviewSheet(
+      context,
+      bookingId: booking.id,
+      shopId: booking.shopId,
+      shopName: booking.shop.name,
+    );
+    // Khong can xu ly gia tri tra ve - danh gia thanh cong hay khong deu
+    // khong lam thay doi UI cua man nay (khong co field "da danh gia chua"
+    // trong BookingWithDetails o Sprint 4, xem ghi chu trong
+    // `write_review_sheet.dart`). Neu nguoi dung bam Danh gia lan 2 cho
+    // cung 1 booking, RLS se tu chan va hien loi ro rang.
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<BookingWithDetails>> bookingsAsync = ref.watch(myBookingsProvider);
@@ -102,7 +117,11 @@ class MyBookingsScreen extends ConsumerWidget {
                   emptyText: 'Không có lịch hẹn sắp tới',
                   onCancel: (booking) => _handleCancel(context, ref, booking),
                 ),
-                _BookingTabList(bookings: history, emptyText: 'Chưa có lịch sử đặt lịch'),
+                _BookingTabList(
+                  bookings: history,
+                  emptyText: 'Chưa có lịch sử đặt lịch',
+                  onReview: (booking) => _handleReview(context, booking),
+                ),
               ],
             );
           },
@@ -113,13 +132,21 @@ class MyBookingsScreen extends ConsumerWidget {
 }
 
 class _BookingTabList extends StatelessWidget {
-  const _BookingTabList({required this.bookings, required this.emptyText, this.onCancel});
+  const _BookingTabList({
+    required this.bookings,
+    required this.emptyText,
+    this.onCancel,
+    this.onReview,
+  });
 
   final List<BookingWithDetails> bookings;
   final String emptyText;
 
   /// `null` = khong cho huy (dung cho tab "Lich su").
   final void Function(BookingWithDetails booking)? onCancel;
+
+  /// `null` = khong cho danh gia (dung cho tab "Sap toi").
+  final void Function(BookingWithDetails booking)? onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -136,6 +163,9 @@ class _BookingTabList extends StatelessWidget {
         return BookingListItem(
           booking: booking,
           onCancel: onCancel != null && booking.status.canCancel ? () => onCancel!(booking) : null,
+          onReview: onReview != null && booking.status == BookingStatus.completed
+              ? () => onReview!(booking)
+              : null,
         );
       },
     );

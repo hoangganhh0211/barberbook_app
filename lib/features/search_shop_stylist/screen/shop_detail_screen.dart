@@ -7,10 +7,13 @@ import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/booking/provider/booking_draft_provider.dart';
+import 'package:barberbook_app/features/review/provider/review_provider.dart';
+import 'package:barberbook_app/features/review/widget/review_list_item.dart';
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_cover_image.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_detail_app_bar.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
+import 'package:barberbook_app/shared/models/review_model.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
 
 /// Man Chi tiet Tiem - vao tu [ShopListItem]/`FeaturedShopCard` (tab
@@ -90,6 +93,48 @@ class ShopDetailScreen extends ConsumerWidget {
                     onPressed: () {
                       ref.read(bookingDraftControllerProvider.notifier).start(shop.id);
                       context.push(RoutePaths.bookingSelectServiceStaff);
+                    },
+                  ),
+                  const SizedBox(height: 28),
+                  Text('Đánh giá', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final AsyncValue<List<ReviewModel>> reviewsAsync =
+                          ref.watch(reviewListProvider(shop.id));
+
+                      return reviewsAsync.when(
+                        // Center can chieu cao GIOI HAN de hoat dong dung -
+                        // boc trong SizedBox vi section nay nam long trong
+                        // ListView cha (chieu cao khong gioi han), KHONG
+                        // dung truc tiep AsyncValueWidget/EmptyStateWidget
+                        // (thiet ke cho man/tab rieng, khong phai section
+                        // long ben trong 1 trang dai hon).
+                        loading: () => const SizedBox(
+                          height: 60,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (error, _) => Text(
+                          error is Failure ? error.message : 'Không tải được đánh giá.',
+                          style: AppTextStyles.bodySecondary,
+                        ),
+                        data: (reviews) {
+                          if (reviews.isEmpty) {
+                            return Text(
+                              'Chưa có đánh giá nào cho tiệm này.',
+                              style: AppTextStyles.bodySecondary,
+                            );
+                          }
+                          return Column(
+                            children: [
+                              for (final review in reviews) ...[
+                                ReviewListItem(review: review),
+                                const SizedBox(height: 10),
+                              ],
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                 ],
