@@ -32,4 +32,15 @@ abstract class Formatters {
   static String time(DateTime value) => _timeFormat.format(value);
 
   static String date(DateTime value) => _dateFormat.format(value);
+
+  /// Vi du: "Vừa xong", "5 phút trước", "3 giờ trước", "2 ngày trước". Qua
+  /// 7 ngay se hien ngay thang cu the (khong con y nghia "gan day").
+  static String relativeTime(DateTime value) {
+    final Duration diff = DateTime.now().difference(value);
+    if (diff.inMinutes < 1) return 'Vừa xong';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} phút trước';
+    if (diff.inHours < 24) return '${diff.inHours} giờ trước';
+    if (diff.inDays < 7) return '${diff.inDays} ngày trước';
+    return date(value);
+  }
 }

@@ -11,6 +11,7 @@ import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/booking/model/booking_draft.dart';
 import 'package:barberbook_app/features/booking/provider/booking_draft_provider.dart';
 import 'package:barberbook_app/features/booking/provider/booking_providers.dart';
+import 'package:barberbook_app/features/notification/provider/notification_provider.dart';
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
@@ -52,6 +53,12 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
         // nay khi Chuc nang 4 hoan thanh).
         ref.read(bookingDraftControllerProvider.notifier).reset();
         ref.invalidate(myBookingsProvider);
+        // Trigger DB (xem schema_notifications.sql) da tu tao 1 thong bao
+        // "Dat lich thanh cong" NGAY luc booking duoc tao - nhung Flutter
+        // KHONG tu biet duoc thay doi phia server nay, nen phai chu dong
+        // invalidate de tab "Thong bao" (va Badge tren Bottom Nav) cap nhat
+        // ngay, khong phai doi nguoi dung tu thoat app/vao lai.
+        ref.invalidate(notificationListProvider);
         if (!context.mounted) return;
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()

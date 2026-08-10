@@ -11,6 +11,7 @@ import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/booking/provider/booking_providers.dart';
 import 'package:barberbook_app/features/booking/widget/booking_list_item.dart';
+import 'package:barberbook_app/features/notification/provider/notification_provider.dart';
 import 'package:barberbook_app/features/review/widget/write_review_sheet.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 
@@ -58,6 +59,10 @@ class MyBookingsScreen extends ConsumerWidget {
         ..showSnackBar(SnackBar(content: Text(failure.message), backgroundColor: AppColors.error));
     } else {
       ref.invalidate(myBookingsProvider);
+      // Trigger DB cung tu tao thong bao "Lich hen da bi huy" ngay luc nay -
+      // lam moi de tab "Thong bao"/Badge cap nhat ngay (cung ly do voi
+      // `booking_confirm_screen.dart`).
+      ref.invalidate(notificationListProvider);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('Đã huỷ lịch hẹn')));
