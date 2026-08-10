@@ -13,6 +13,7 @@ import 'package:barberbook_app/features/home_customer/screen/customer_shell_scre
 import 'package:barberbook_app/features/home_customer/screen/home_customer_screen.dart';
 import 'package:barberbook_app/features/notification/screen/notification_center_screen.dart';
 import 'package:barberbook_app/features/partner_dashboard/screen/partner_shell_screen.dart';
+import 'package:barberbook_app/features/profile/screen/profile_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_detail_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_list_screen.dart';
 import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
@@ -102,8 +103,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.customerProfile,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Thông tin'),
+              builder: (context, state) => const ProfileScreen(),
             ),
           ]),
         ],

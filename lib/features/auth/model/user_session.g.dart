@@ -10,6 +10,7 @@ _$UserSessionImpl _$$UserSessionImplFromJson(Map<String, dynamic> json) =>
     _$UserSessionImpl(
       userId: json['user_id'] as String,
       fullName: json['full_name'] as String,
+      phone: json['phone'] as String?,
       role: _roleFromJson(json['role'] as String),
     );
 
@@ -17,5 +18,6 @@ Map<String, dynamic> _$$UserSessionImplToJson(_$UserSessionImpl instance) =>
     <String, dynamic>{
       'user_id': instance.userId,
       'full_name': instance.fullName,
+      'phone': instance.phone,
       'role': _roleToJson(instance.role),
     };

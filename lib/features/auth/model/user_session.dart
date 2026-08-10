@@ -19,6 +19,7 @@ class UserSession with _$UserSession {
   const factory UserSession({
     @JsonKey(name: 'user_id') required String userId,
     @JsonKey(name: 'full_name') required String fullName,
+    String? phone,
     @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson) required UserRole role,
   }) = _UserSession;
 
@@ -31,6 +32,7 @@ class UserSession with _$UserSession {
     return UserSession(
       userId: row['id'] as String,
       fullName: (row['full_name'] as String?) ?? '',
+      phone: row['phone'] as String?,
       role: UserRole.fromServerValue((row['role'] as String?) ?? 'customer'),
     );
   }

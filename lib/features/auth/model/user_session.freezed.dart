@@ -24,6 +24,7 @@ mixin _$UserSession {
   String get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'full_name')
   String get fullName => throw _privateConstructorUsedError;
+  String? get phone => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
   UserRole get role => throw _privateConstructorUsedError;
 
@@ -46,6 +47,7 @@ abstract class $UserSessionCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'user_id') String userId,
       @JsonKey(name: 'full_name') String fullName,
+      String? phone,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson) UserRole role});
 }
 
@@ -66,6 +68,7 @@ class _$UserSessionCopyWithImpl<$Res, $Val extends UserSession>
   $Res call({
     Object? userId = null,
     Object? fullName = null,
+    Object? phone = freezed,
     Object? role = null,
   }) {
     return _then(_value.copyWith(
@@ -77,6 +80,10 @@ class _$UserSessionCopyWithImpl<$Res, $Val extends UserSession>
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
       role: null == role
           ? _value.role
           : role // ignore: cast_nullable_to_non_nullable
@@ -96,6 +103,7 @@ abstract class _$$UserSessionImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'user_id') String userId,
       @JsonKey(name: 'full_name') String fullName,
+      String? phone,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson) UserRole role});
 }
 
@@ -114,6 +122,7 @@ class __$$UserSessionImplCopyWithImpl<$Res>
   $Res call({
     Object? userId = null,
     Object? fullName = null,
+    Object? phone = freezed,
     Object? role = null,
   }) {
     return _then(_$UserSessionImpl(
@@ -125,6 +134,10 @@ class __$$UserSessionImplCopyWithImpl<$Res>
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
       role: null == role
           ? _value.role
           : role // ignore: cast_nullable_to_non_nullable
@@ -139,6 +152,7 @@ class _$UserSessionImpl extends _UserSession {
   const _$UserSessionImpl(
       {@JsonKey(name: 'user_id') required this.userId,
       @JsonKey(name: 'full_name') required this.fullName,
+      this.phone,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
       required this.role})
       : super._();
@@ -153,12 +167,14 @@ class _$UserSessionImpl extends _UserSession {
   @JsonKey(name: 'full_name')
   final String fullName;
   @override
+  final String? phone;
+  @override
   @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
   final UserRole role;
 
   @override
   String toString() {
-    return 'UserSession(userId: $userId, fullName: $fullName, role: $role)';
+    return 'UserSession(userId: $userId, fullName: $fullName, phone: $phone, role: $role)';
   }
 
   @override
@@ -169,12 +185,13 @@ class _$UserSessionImpl extends _UserSession {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.role, role) || other.role == role));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, userId, fullName, role);
+  int get hashCode => Object.hash(runtimeType, userId, fullName, phone, role);
 
   /// Create a copy of UserSession
   /// with the given fields replaced by the non-null parameter values.
@@ -196,6 +213,7 @@ abstract class _UserSession extends UserSession {
   const factory _UserSession(
       {@JsonKey(name: 'user_id') required final String userId,
       @JsonKey(name: 'full_name') required final String fullName,
+      final String? phone,
       @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
       required final UserRole role}) = _$UserSessionImpl;
   const _UserSession._() : super._();
@@ -209,6 +227,8 @@ abstract class _UserSession extends UserSession {
   @override
   @JsonKey(name: 'full_name')
   String get fullName;
+  @override
+  String? get phone;
   @override
   @JsonKey(fromJson: _roleFromJson, toJson: _roleToJson)
   UserRole get role;

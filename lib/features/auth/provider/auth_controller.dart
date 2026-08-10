@@ -117,6 +117,29 @@ class AuthController extends Notifier<AuthState> {
     // se tu xu ly.
   }
 
+  /// Tai lai [UserSession] (doc lai bang `profiles`) - dung sau khi SUA ho
+  /// so (vd: doi ho ten o man Thong tin ca nhan). CAN THIET vi
+  /// `onAuthStateChange` CHI phat khi dang nhap/dang xuat/token duoc lam
+  /// moi - KHONG phat khi UPDATE bang `profiles`, nen state cu se "cu" neu
+  /// khong chu dong goi ham nay.
+  Future<void> refreshSession() async {
+    final AuthState current = state;
+    if (current is! AuthAuthenticated) return;
+
+    final Result<UserSession> result =
+        await ref.read(authRepositoryProvider).fetchUserSession(current.session.userId);
+
+    switch (result) {
+      case Success(:final data):
+        state = AuthAuthenticated(data);
+      case ResultFailure():
+        // Giu nguyen state cu neu loi - 1 lan refresh that bai khong nen
+        // lam gian doan trai nghiem (nguoi dung van dang dang nhap binh
+        // thuong, chi la chua thay ten moi nhat).
+        break;
+    }
+  }
+
   /// CHI DUNG CHO DEV/QA de test Role-based routing khi chua co du lieu
   /// that trong Supabase (xem cach dung trong `LoginScreen`, an sau
   /// `kDebugMode`). KHONG duoc goi ham nay o bat ky luong nghiep vu that nao.
