@@ -1,21 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-/// Shell cho khu vuc Partner (Owner/Manager/Receptionist/Staff).
-///
-/// Da doi chieu voi sidebar Web Admin (vai tro "ADMIN-1234" = Owner 1 tiem,
-/// KHONG phai "SUPER ADMIN" toan he thong) - xem bang phan tich trong
-/// `route_paths.dart`. 5 tab hien tai la DU va DUNG pham vi cho mobile:
-/// Dashboard (gom ca "Quan ly lich hen" + "Bao cao" rut gon), Lich lam viec,
-/// Nhan su, Dich vu. Cac muc it dung (Voucher, Thanh toan, Bao mat, Ho tro)
-/// KHONG lam tab rieng ma nam trong menu con cua tab "Ca nhan"
-/// (`RoutePaths.partnerVouchers/partnerPayments/partnerSecurity/partnerSupport`).
-///
-/// LUU Y - se hoan thien o Sprint 7 (US-STAFF-002, RBAC Matrix):
-/// hien tai ca 5 tab deu hien thi cho MOI partner role. Tu Sprint 7, tab
-/// "Nhan su" va "Dich vu" se bi AN hoan toan (khong chi disable) doi voi
-/// Receptionist/Staff theo dung bang phan quyen trong tai lieu, thong qua
-/// `PermissionGuard` (xem `core/widgets/permission_guard.dart`).
 class PartnerShellScreen extends StatelessWidget {
   const PartnerShellScreen({required this.navigationShell, super.key});
 

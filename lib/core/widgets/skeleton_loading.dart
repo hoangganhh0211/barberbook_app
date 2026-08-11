@@ -3,12 +3,6 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:barberbook_app/core/theme/app_colors.dart';
 
-/// Skeleton loading cho Page Load - dung THAY THE cho spinner toan trang,
-/// dung theo yeu cau muc 3.2.1: "Skeleton screens thay cho spinner toan
-/// trang. Shimmer effect, height match content thuc te."
-///
-/// Cach dung: truyen vao 1 [itemHeight] va [itemCount] khop voi list item
-/// thuc te se hien thi, de tranh "nhay" layout khi data load xong.
 class SkeletonLoading extends StatelessWidget {
   const SkeletonLoading({
     required this.itemCount,

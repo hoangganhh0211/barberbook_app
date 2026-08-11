@@ -15,9 +15,6 @@ import 'package:barberbook_app/features/search_shop_stylist/widget/shop_detail_a
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/review_model.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// Man Chi tiet Tiem - vao tu [ShopListItem]/`FeaturedShopCard` (tab
-/// Tiem/Home) qua `context.push(RoutePaths.customerShopDetail(shopId))`.
 class ShopDetailScreen extends ConsumerWidget {
   const ShopDetailScreen({required this.shopId, super.key});
 
@@ -28,9 +25,6 @@ class ShopDetailScreen extends ConsumerWidget {
     final AsyncValue<ShopModel> shopAsync = ref.watch(shopDetailProvider(shopId));
 
     return shopAsync.when(
-      // Loading/Error dung rieng o day (khong qua AsyncValueWidget) vi can
-      // 1 AppBar don gian (chi co nut back) trong luc CHUA co du lieu shop
-      // de dua vao ShopDetailAppBar (can ten/trang thai tiem).
       loading: () => Scaffold(
         appBar: AppBar(iconTheme: const IconThemeData(color: AppColors.primary)),
         body: const Center(child: CircularProgressIndicator()),
@@ -104,12 +98,6 @@ class ShopDetailScreen extends ConsumerWidget {
                           ref.watch(reviewListProvider(shop.id));
 
                       return reviewsAsync.when(
-                        // Center can chieu cao GIOI HAN de hoat dong dung -
-                        // boc trong SizedBox vi section nay nam long trong
-                        // ListView cha (chieu cao khong gioi han), KHONG
-                        // dung truc tiep AsyncValueWidget/EmptyStateWidget
-                        // (thiet ke cho man/tab rieng, khong phai section
-                        // long ben trong 1 trang dai hon).
                         loading: () => const SizedBox(
                           height: 60,
                           child: Center(child: CircularProgressIndicator()),

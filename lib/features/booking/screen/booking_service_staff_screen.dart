@@ -16,21 +16,12 @@ import 'package:barberbook_app/features/booking/widget/selectable_option_card.da
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/service_model.dart';
 import 'package:barberbook_app/shared/models/staff_model.dart';
-
-/// Man Buoc 1-2 cua luong Dat lich (US-BOOKING-009): chon Dich vu (bat
-/// buoc) + chon Tho (tuy chon, mac dinh "Bat ky tho nao"). Doc `shopId` tu
-/// [BookingDraftController] (da duoc [ShopDetailScreen] khoi tao qua
-/// `start()` truoc khi push sang man nay).
 class BookingServiceStaffScreen extends ConsumerWidget {
   const BookingServiceStaffScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final BookingDraft? draft = ref.watch(bookingDraftControllerProvider);
-
-    // Phong ve: neu vi ly do nao do vao thang man nay ma chua co draft (vd:
-    // hot reload giua chung khi dev, hoac dieu huong sai) - bao loi ro rang
-    // thay vi de app crash vi truy cap `draft.shopId` tren gia tri null.
     if (draft == null) {
       return Scaffold(
         appBar: const BrandedAppBar(variant: BrandedAppBarVariant.titleOnly, showBackButton: true),

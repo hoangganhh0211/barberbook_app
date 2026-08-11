@@ -2,11 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:barberbook_app/core/theme/app_colors.dart';
-
-/// Anh cover cua Tiem, dung chung o `ShopListItem` (tab Tiem) va
-/// `FeaturedShopCard` (tab Home) - tranh lap logic CachedNetworkImage +
-/// placeholder o 2 noi. Tham so hoa kich thuoc/bo goc de linh hoat cho
-/// tung layout khac nhau.
 class ShopCoverImage extends StatelessWidget {
   const ShopCoverImage({
     required this.imageUrl,

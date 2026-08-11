@@ -5,7 +5,6 @@ import 'package:barberbook_app/core/error/supabase_error_mapper.dart';
 import 'package:barberbook_app/features/profile/service/profile_service.dart';
 
 abstract class ProfileRepository {
-  /// Tra ve `null` neu thanh cong, [Failure] neu that bai.
   Future<Failure?> updateFullName(String fullName);
 }
 

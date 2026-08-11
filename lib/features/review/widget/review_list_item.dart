@@ -5,8 +5,6 @@ import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/utils/formatters.dart';
 import 'package:barberbook_app/features/review/widget/star_rating.dart';
 import 'package:barberbook_app/shared/models/review_model.dart';
-
-/// 1 dong trong danh sach danh gia - dung o [ShopDetailScreen].
 class ReviewListItem extends StatelessWidget {
   const ReviewListItem({required this.review, super.key});
 

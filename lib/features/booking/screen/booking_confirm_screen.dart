@@ -15,9 +15,6 @@ import 'package:barberbook_app/features/notification/provider/notification_provi
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// Man Buoc 4 (cuoi cung) cua luong Dat lich: xem lai thong tin da chon va
-/// xac nhan tao booking that trong Supabase.
 class BookingConfirmScreen extends ConsumerStatefulWidget {
   const BookingConfirmScreen({super.key});
 
@@ -48,16 +45,8 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
 
     switch (result) {
       case Success():
-        // Dat lich thanh cong - don dep draft NGAY de khong anh huong lan
-        // dat lich tiep theo, roi ve Home (tab "Dat lich" se hien lich hen
-        // nay khi Chuc nang 4 hoan thanh).
         ref.read(bookingDraftControllerProvider.notifier).reset();
         ref.invalidate(myBookingsProvider);
-        // Trigger DB (xem schema_notifications.sql) da tu tao 1 thong bao
-        // "Dat lich thanh cong" NGAY luc booking duoc tao - nhung Flutter
-        // KHONG tu biet duoc thay doi phia server nay, nen phai chu dong
-        // invalidate de tab "Thong bao" (va Badge tren Bottom Nav) cap nhat
-        // ngay, khong phai doi nguoi dung tu thoat app/vao lai.
         ref.invalidate(notificationListProvider);
         if (!context.mounted) return;
         ScaffoldMessenger.of(context)

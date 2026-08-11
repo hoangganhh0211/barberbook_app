@@ -18,8 +18,6 @@ abstract class BookingRepository {
   });
 
   Future<Result<List<BookingWithDetails>>> fetchMyBookings();
-
-  /// Tra ve `null` neu thanh cong, [Failure] neu that bai.
   Future<Failure?> cancelBooking(String bookingId);
 }
 

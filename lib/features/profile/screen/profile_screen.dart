@@ -7,13 +7,6 @@ import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/auth/model/user_session.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/profile/widget/edit_full_name_dialog.dart';
-
-/// Man goc cua tab "Thong tin" - xem/sua ho so co ban, menu dieu huong toi
-/// cac chuc nang phu (Vi, Bao mat, Ho tro...), Dang xuat.
-///
-/// Sprint 4 CHI ho tro sua ho ten. Cac muc "Vi & Uu dai"/"Bao mat"/"Ho tro"
-/// hien la placeholder (`_showComingSoon`) - se noi that o Sprint 5/7/8
-/// theo dung ke hoach IA da thong nhat (xem `route_paths.dart` phan Ca nhan).
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -44,8 +37,6 @@ class ProfileScreen extends ConsumerWidget {
 
     if (confirmed == true) {
       await ref.read(authControllerProvider.notifier).signOut();
-      // Khong can tu dieu huong - route_guard.dart se tu dua ve Login khi
-      // AuthState chuyen sang AuthUnauthenticated.
     }
   }
 

@@ -4,11 +4,6 @@ import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_status_badge.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// TopAppBar rieng cho man Chi tiet Tiem - dung Header variant 4 trong
-/// Figma: back + ten tiem + badge trang thai + nut yeu thich. KHONG dua vao
-/// `BrandedAppBar` dung chung (xem doc comment trong file do) vi day la UI
-/// gan chat voi du lieu 1 Tiem cu the, khong phai AppBar thuong hieu chung.
 class ShopDetailAppBar extends StatefulWidget implements PreferredSizeWidget {
   const ShopDetailAppBar({required this.shop, super.key});
 
@@ -22,9 +17,6 @@ class ShopDetailAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _ShopDetailAppBarState extends State<ShopDetailAppBar> {
-  // TAM THOI luu cuc bo, CHUA luu vao Database - se hoan thien khi co bang
-  // `favorites` rieng (Sprint 5, cung luc voi Vi Voucher). Gia tri se mat
-  // khi thoat man - KHONG danh lua nguoi dung rang da luu vinh vien.
   bool _isFavorite = false;
 
   @override

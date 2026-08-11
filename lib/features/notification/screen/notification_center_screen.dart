@@ -8,10 +8,6 @@ import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/notification/model/notification_model.dart';
 import 'package:barberbook_app/features/notification/provider/notification_provider.dart';
 import 'package:barberbook_app/features/notification/widget/notification_list_item.dart';
-
-/// Man goc cua tab "Thong bao" (US-NOTIFY-012 - Trung tam Thong bao trong
-/// app). CHUA gom Push Notification qua Firebase - xem ghi chu pham vi
-/// trong `README.md`.
 class NotificationCenterScreen extends ConsumerWidget {
   const NotificationCenterScreen({super.key});
 
@@ -21,9 +17,6 @@ class NotificationCenterScreen extends ConsumerWidget {
     if (failure == null) {
       ref.invalidate(notificationListProvider);
     }
-    // Loi danh dau da doc khong quan trong den muc phai lam gian doan UX
-    // bang SnackBar - bo qua im lang, nguoi dung van doc duoc noi dung binh
-    // thuong, chi la trang thai "da doc" chua duoc luu.
   }
 
   Future<void> _handleMarkAllRead(BuildContext context, WidgetRef ref) async {

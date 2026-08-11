@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
-
-/// Card lua chon dang radio (chi chon 1) - dung chung cho "Chon dich vu" va
-/// "Chon tho" o cung 1 man, tranh viet 2 UI gan giong nhau.
 class SelectableOptionCard extends StatelessWidget {
   const SelectableOptionCard({
     required this.title,

@@ -1,17 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:barberbook_app/shared/models/review_model.dart';
-
-/// Tang DUY NHAT duoc phep import `supabase_flutter` cho du lieu Danh gia.
 class ReviewService {
   ReviewService(this._client);
 
   final SupabaseClient _client;
-
-  /// Tao 1 danh gia moi cho 1 booking DA HOAN TAT (`status = 'completed'`).
-  /// RLS trong `supabase/schema_reviews.sql` se tu chan neu booking chua
-  /// hoan tat hoac khong phai cua khach dang dang nhap - KHONG can kiem tra
-  /// lai o Flutter, chi can xu ly loi tra ve neu co (xem `ReviewRepository`).
   Future<ReviewModel> createReview({
     required String bookingId,
     required String shopId,
@@ -37,8 +30,6 @@ class ReviewService {
 
     return ReviewModel.fromJson(row);
   }
-
-  /// Danh sach danh gia cua 1 tiem, moi nhat len dau.
   Future<List<ReviewModel>> fetchReviewsByShop(String shopId) async {
     final List<Map<String, dynamic>> rows = await _client
         .from('reviews')

@@ -5,10 +5,6 @@ import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/utils/validators.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/profile/provider/profile_provider.dart';
-
-/// Mo dialog sua ho ten. Sau khi luu thanh cong, TU DONG goi
-/// `AuthController.refreshSession()` de man Thong tin hien dung ten moi
-/// ngay - xem giai thich trong `auth_controller.dart`.
 Future<void> showEditFullNameDialog(BuildContext context, {required String currentFullName}) {
   return showDialog<void>(
     context: context,

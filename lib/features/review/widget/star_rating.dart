@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:barberbook_app/core/theme/app_colors.dart';
-
-/// Sao danh gia CO THE CHON - dung khi viet review moi.
 class StarRatingInput extends StatelessWidget {
   const StarRatingInput({
     required this.rating,
@@ -10,8 +8,6 @@ class StarRatingInput extends StatelessWidget {
     this.size = 36,
     super.key,
   });
-
-  /// 0-5, 0 = chua chon sao nao.
   final int rating;
   final ValueChanged<int> onChanged;
   final double size;
@@ -35,10 +31,6 @@ class StarRatingInput extends StatelessWidget {
     );
   }
 }
-
-/// Sao danh gia CHI HIEN THI (khong tuong tac) - dung o danh sach review va
-/// [ShopDetailScreen]. Lam tron ve so nguyen gan nhat (khong ve nua sao,
-/// giu don gian).
 class StarRatingDisplay extends StatelessWidget {
   const StarRatingDisplay({required this.rating, this.size = 16, super.key});
 

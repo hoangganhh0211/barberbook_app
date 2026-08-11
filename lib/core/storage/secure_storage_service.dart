@@ -1,11 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Noi duy nhat trong toan app duoc phep doc/ghi token.
-///
-/// KHONG bao gio luu access_token/refresh_token bang `shared_preferences`
-/// (plain text, khong ma hoa) - bat buoc dung `flutter_secure_storage`
-/// (Keychain tren iOS, EncryptedSharedPreferences tren Android) theo dung
-/// yeu cau bao mat cua tai lieu (muc 1.5.3 - Quan ly phien & Token).
 class SecureStorageService {
   SecureStorageService({FlutterSecureStorage? storage})
       : _storage = storage ??

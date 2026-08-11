@@ -24,8 +24,6 @@ final staffServiceProvider = Provider<StaffService>((ref) {
 final staffRepositoryProvider = Provider<StaffRepository>((ref) {
   return StaffRepositoryImpl(ref.watch(staffServiceProvider));
 });
-
-/// Danh sach Dich vu cua 1 tiem (theo `shopId`) - dung o Buoc 1 luong Dat lich.
 final serviceListProvider = FutureProvider.family<List<ServiceModel>, String>((ref, shopId) async {
   final result = await ref.watch(serviceCatalogRepositoryProvider).fetchServicesByShop(shopId);
   switch (result) {
@@ -35,8 +33,6 @@ final serviceListProvider = FutureProvider.family<List<ServiceModel>, String>((r
       throw failure;
   }
 });
-
-/// Danh sach Tho cua 1 tiem (theo `shopId`) - dung o Buoc 2 luong Dat lich.
 final staffListProvider = FutureProvider.family<List<StaffModel>, String>((ref, shopId) async {
   final result = await ref.watch(staffRepositoryProvider).fetchStaffByShop(shopId);
   switch (result) {

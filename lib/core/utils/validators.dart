@@ -1,9 +1,3 @@
-/// Cac ham validate dung chung cho `TextFormField.validator`. Tra ve `null`
-/// neu hop le, tra ve chuoi loi (hien duoi input) neu khong hop le - dung
-/// dung "hop dong" cua `FormFieldValidator<String>`.
-///
-/// KHONG viet lai regex/logic validate rieng le o tung Screen - moi rule
-/// nghiep vu (do dai, dinh dang) chi dinh nghia DUY NHAT o day.
 abstract class Validators {
   static final RegExp _vnPhoneRegExp = RegExp(r'^(0|\+84)(3|5|7|8|9)\d{8}$');
   static final RegExp _emailRegExp = RegExp(r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$');
@@ -36,8 +30,6 @@ abstract class Validators {
     return null;
   }
 
-  /// Dung cho form "Dat lai mat khau" (Sprint 1 - phan Quen mat khau) -
-  /// so sanh 2 truong password trung khop.
   static String? Function(String?) confirmPassword(String originalPassword) {
     return (String? value) {
       if (value != originalPassword) return 'Mật khẩu xác nhận không khớp';

@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Nut hanh dong chinh (Luu/Xac nhan/Dang nhap...) co san logic Loading.
-///
-/// Dung theo dung yeu cau muc 3.1: "Luu/Xac nhan: Chay Validation -> Gui
-/// API -> Loading -> Xu ly Response" va "Disabled khi isSubmitting" -
-/// nen KHONG duoc phep tu viet lai ElevatedButton + CircularProgressIndicator
-/// rieng le o tung man hinh, tranh quen disable khi dang submit.
 class AppPrimaryButton extends StatelessWidget {
   const AppPrimaryButton({
     required this.label,
@@ -17,7 +11,6 @@ class AppPrimaryButton extends StatelessWidget {
 
   final String label;
 
-  /// Truyen null de disable nut (vd: form chua hop le).
   final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? icon;

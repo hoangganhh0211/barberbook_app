@@ -10,22 +10,8 @@ import 'package:barberbook_app/core/providers/shared_preferences_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Khoi tao truoc cac dependency bat buoc phai co san khi app frame dau
-  // tien duoc ve (ca 3 deu la async nen phai await o day).
   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-  // BAT BUOC de `Formatters.dateTime()`/`Formatters.date()` (dung locale
-  // 'vi_VN') hoat dong - neu thieu buoc nay, goi `DateFormat(..., 'vi_VN')'
-  // se nem `LocaleDataException` ngay lan dau tien duoc goi (vd: o man Xac
-  // nhan Dat lich, Sprint 3).
   await initializeDateFormatting('vi_VN');
-
-  // BAT BUOC khoi tao Supabase TRUOC khi goi runApp() - moi noi trong app
-  // dung `Supabase.instance.client` (qua `supabaseClientProvider`) deu gia
-  // dinh Supabase da san sang. Neu thieu SUPABASE_URL/SUPABASE_ANON_KEY khi
-  // build, dong nay se throw loi ro rang ngay khi mo app thay vi loi mo ho
-  // luc goi API sau nay.
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,

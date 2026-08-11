@@ -7,10 +7,6 @@ import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/review/provider/review_provider.dart';
 import 'package:barberbook_app/features/review/widget/star_rating.dart';
-
-/// Mo bottom sheet viet danh gia. Goi tu tab "Dat lich" (booking `completed`).
-/// Tra ve `true` neu gui thanh cong (de man goi co the lam moi UI neu can),
-/// `false`/`null` neu nguoi dung dong sheet ma khong gui.
 Future<bool?> showWriteReviewSheet(
   BuildContext context, {
   required String bookingId,
@@ -75,9 +71,6 @@ class _WriteReviewSheetContentState extends ConsumerState<_WriteReviewSheetConte
 
     switch (result) {
       case Success():
-        // Danh gia thanh cong lam thay doi rating trung binh cua tiem
-        // (trigger DB) - lam moi danh sach review de man Chi tiet Tiem
-        // hien dung du lieu moi nhat khi mo lai.
         ref.invalidate(reviewListProvider(widget.shopId));
         if (context.mounted) Navigator.of(context).pop(true);
       case ResultFailure(:final failure):

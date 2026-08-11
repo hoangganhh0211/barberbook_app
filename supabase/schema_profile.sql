@@ -1,22 +1,7 @@
--- ============================================================================
--- BarberBook - Supabase Schema (Sprint 1: Auth)
--- An toan khi chay lai NHIEU LAN (idempotent) - chay toan bo file nay trong
--- Supabase Dashboard > SQL Editor > New query, ke ca khi da chay ban truoc do.
--- ============================================================================
-
--- ----------------------------------------------------------------------------
--- 1. Bang profiles - luu thong tin mo rong ma Supabase Auth khong co san
---    (full_name, role, phone that). Lien ket 1-1 voi auth.users qua `id`.
---
---    LUU Y: du an dang dang nhap qua EMAIL PROVIDER GIA LAP (xem
---    `auth_service.dart`) - `auth.users.phone` se luon TRONG, SDT that nam
---    o cot `profiles.phone` nay, doc tu `raw_user_meta_data`.
--- ----------------------------------------------------------------------------
+-- 1. Bang profiles - luu thong tin 
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text not null default '',
-  -- Gia tri phai khop CHINH XAC voi UserRole.fromServerValue() trong Flutter
-  -- (lib/core/enums/user_role.dart) - doi 1 ben PHAI doi ca 2.
   role text not null default 'customer'
     check (role in ('customer', 'owner', 'manager', 'receptionist', 'staff')),
   phone text,
@@ -27,8 +12,6 @@ create table if not exists public.profiles (
 comment on table public.profiles is
   'Thong tin mo rong cua user (ho ten, role, SDT that) - Supabase Auth mac dinh khong co san.';
 
--- Dam bao SDT la duy nhat o CA TANG DATABASE (lop bao ve thu 2, ngoai viec
--- email noi bo gia lap tu SDT da tu dam bao unique o tang Supabase Auth).
 do $$
 begin
   if not exists (
@@ -40,13 +23,6 @@ end $$;
 
 -- ----------------------------------------------------------------------------
 -- 2. Trigger: tu dong tao 1 dong `profiles` moi khi co user dang ky moi.
---    `full_name` VA `phone` deu doc tu `raw_user_meta_data` (duoc
---    AuthService.signUpWithPhonePassword truyen vao qua tham so
---    `data: {'full_name': ..., 'phone': ...}` - KHONG doc tu `new.phone`
---    cua Supabase vi cot do luon trong (dang dung Email provider gia lap).
---    `role` mac dinh la 'customer' - tai khoan Owner/Staff can duoc set thu
---    cong trong Dashboard (Table Editor > profiles > sua cot role) cho toi
---    khi co tinh nang "Moi nhan vien" o Sprint 6/7.
 -- ----------------------------------------------------------------------------
 create or replace function public.handle_new_user()
 returns trigger
@@ -71,8 +47,7 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- ----------------------------------------------------------------------------
--- 3. Row Level Security - BAT BUOC, neu khong bat RLS thi bat ky ai co
---    anon key (nam san trong app) deu doc/sua duoc TOAN BO du lieu user khac.
+-- 3. Row Level Security - chi xem/sua profile cua chinh minh, KHONG duoc tao/xoa profile tu client.
 -- ----------------------------------------------------------------------------
 alter table public.profiles enable row level security;
 

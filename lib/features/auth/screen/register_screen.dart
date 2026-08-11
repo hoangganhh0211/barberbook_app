@@ -8,13 +8,6 @@ import 'package:barberbook_app/core/utils/validators.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
-
-/// Man Dang ky (US-AUTH-001 - ban rut gon, KHONG qua buoc OTP).
-///
-/// Thu thap Ho ten + SDT + Mat khau, goi thang `register()` - thanh cong la
-/// tai khoan da duoc tao VA dang nhap luon ngay lap tuc (Supabase tra ve
-/// session, `AuthController` tu cap nhat state qua `onAuthStateChange`).
-/// Man nay KHONG tu dieu huong - `route_guard.dart` se tu dua vao dung Shell.
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
@@ -60,9 +53,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _isSubmitting = false);
 
     if (failure == null) {
-      // Phan hoi ngay lap tuc cho nguoi dung THAY vi im lang cho -
-      // `route_guard.dart` van se tu dieu huong vao dung Shell ngay sau do
-      // khi `onAuthStateChange` phat su kien (thuong chi mat vai tram ms).
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(

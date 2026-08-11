@@ -38,12 +38,6 @@ class ReviewRepositoryImpl implements ReviewRepository {
       );
       return Success(review);
     } on PostgrestException catch (e) {
-      // Xu ly RIENG 2 truong hop loi co the doan truoc duoc, thay vi de
-      // nguoi dung thay message ky thuat tho tu Postgres:
-      // - '23505' (unique_violation) - da danh gia booking nay roi (UNIQUE
-      //   tren booking_id trong schema_reviews.sql).
-      // - '42501' (RLS violation) - booking chua 'completed', hoac khong
-      //   phai booking cua chinh khach nay.
       if (e.code == '23505') {
         return const ResultFailure(ServerFailure('Bạn đã đánh giá cho lịch hẹn này rồi.'));
       }

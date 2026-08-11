@@ -12,15 +12,6 @@ import 'package:barberbook_app/core/widgets/app_logo.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
-
-/// Man dang nhap (US-AUTH-001) - SDT + Mat khau, dung theo luong chuan
-/// muc 3.1 trong tai lieu: "Chay Validation -> Gui API -> Loading -> Xu ly
-/// Response".
-///
-/// KHONG tu dieu huong sang Home/Dashboard khi dang nhap thanh cong -
-/// `route_guard.dart` se tu dong lam viec do ngay khi [AuthController] doi
-/// state sang [AuthAuthenticated] (xem `RouterRefreshNotifier`). Man hinh
-/// nay chi co trach nhiem: thu thap input, goi Controller, hien thi loi.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -44,13 +35,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    // 1. Validation - dung FormState co san, khong tu viet lai kiem tra rong/dinh dang.
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-
-    // 2. Goi API (qua Controller -> Repository -> Service) + 3. Loading da
-    // duoc phan anh qua `_isSubmitting` (AppPrimaryButton tu disable+quay).
     final Failure? failure = await ref.read(authControllerProvider.notifier).loginWithPhonePassword(
           phone: _phoneController.text.trim(),
           password: _passwordController.text,
@@ -58,9 +45,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-
-    // 4. Xu ly Response: chi can xu ly truong hop LOI o day - truong hop
-    // thanh cong da duoc route_guard.dart tu dong dieu huong.
     if (failure != null) {
       _showErrorSnackBar(failure.message);
     }
@@ -180,11 +164,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
-
-/// CHI hien trong `kDebugMode` (khong bao gio xuat hien trong build release
-/// tren Google Play/App Store) - dung de QA/dev test nhanh Role-based
-/// routing khi backend that chua san sang, KHONG thay the luong dang nhap
-/// that o tren.
 class _DebugRoleSwitcher extends ConsumerWidget {
   const _DebugRoleSwitcher();
 

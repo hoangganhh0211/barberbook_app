@@ -4,10 +4,6 @@ import 'package:barberbook_app/core/enums/booking_status.dart';
 
 part 'booking_model.freezed.dart';
 part 'booking_model.g.dart';
-
-/// 1 lich hen cua khach hang - doc/ghi tu bang `bookings` (xem
-/// `supabase/schema_bookings.sql`). Dung o cuoi luong Dat lich (tao moi,
-/// US-BOOKING-009) va tab "Dat lich" (xem danh sach, US-MYBOOKING-010).
 @freezed
 class BookingModel with _$BookingModel {
   const factory BookingModel({

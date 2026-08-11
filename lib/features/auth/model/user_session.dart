@@ -5,13 +5,7 @@ import 'package:barberbook_app/core/enums/user_role.dart';
 part 'user_session.freezed.dart';
 part 'user_session.g.dart';
 
-/// Thong tin toi thieu can co ngay sau khi dang nhap de dieu huong dung
-/// Shell (Customer/Partner) va kiem soat RBAC co ban.
-///
-/// Nguon du lieu: bang `profiles` trong Supabase Postgres (xem
-/// `supabase/schema.sql`) - Supabase Auth mac dinh KHONG co san field
-/// `role`/`full_name`, nen phai luu rieng trong 1 bang co lien ket toi
-/// `auth.users.id`.
+
 @freezed
 class UserSession with _$UserSession {
   const UserSession._();
@@ -38,9 +32,6 @@ class UserSession with _$UserSession {
   }
 }
 
-// Chuyen doi rieng cho UserRole vi day la enum tu dinh nghia (khong phai
-// enum "phang" ma json_serializable co the tu suy ra), tai su dung logic
-// mapping da co san trong `UserRole.fromServerValue` - KHONG viet lai switch
-// rieng o day de tranh 2 noi cung logic bi lech nhau khi doi gia tri.
+
 UserRole _roleFromJson(String value) => UserRole.fromServerValue(value);
 String _roleToJson(UserRole role) => role.name;

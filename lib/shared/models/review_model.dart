@@ -2,10 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'review_model.freezed.dart';
 part 'review_model.g.dart';
-
-/// 1 danh gia cua khach hang - doc/ghi tu bang `reviews` (xem
-/// `supabase/schema_reviews.sql`). `customerName` la snapshot tu Database
-/// (trigger tu dong dien), KHONG phai du lieu client tu gui.
 @freezed
 class ReviewModel with _$ReviewModel {
   const factory ReviewModel({

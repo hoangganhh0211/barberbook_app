@@ -5,10 +5,6 @@ import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_cover_image.dart';
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_status_badge.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// 1 dong trong danh sach Tiem - dung lai o ca tab "Tiem" (Chuc nang 2) va
-/// section noi bat tren Home (Chuc nang 3), tranh dung lai UI khac nhau
-/// cho cung 1 loai du lieu.
 class ShopListItem extends StatelessWidget {
   const ShopListItem({required this.shop, required this.onTap, super.key});
 

@@ -3,12 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 
-/// Empty State dung chung, tuan thu cau truc bat buoc trong tai lieu
-/// (muc 3.2.2): Icon -> "Chua co du lieu" -> mo ta ngan -> CTA dieu huong.
-///
-/// KHONG duoc hien thi widget nay trong luc dang loading (spec noi ro:
-/// "Khong hien thi Empty State trong luc dang loading") - trach nhiem nay
-/// thuoc ve noi goi (dung [AsyncValueWidget] de dieu phoi dung thu tu).
 class EmptyStateWidget extends StatelessWidget {
   const EmptyStateWidget({
     required this.title,

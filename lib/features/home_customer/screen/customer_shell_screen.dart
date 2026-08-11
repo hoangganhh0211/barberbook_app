@@ -3,13 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/features/notification/provider/notification_provider.dart';
-
-/// Shell (khung Bottom Navigation) cho toan bo khu vuc Khach hang.
-///
-/// Dung `StatefulShellRoute.indexedStack` cua go_router (xem `app_router.dart`)
-/// nen [navigationShell] tu dong giu state rieng cho tung tab (khong bi
-/// rebuild lai tu dau khi chuyen tab qua lai) - dung UX yeu cau cho app
-/// booking (vd: giu vi tri scroll cua tab Tim kiem khi chuyen sang tab khac).
 class CustomerShellScreen extends ConsumerWidget {
   const CustomerShellScreen({required this.navigationShell, super.key});
 
@@ -25,7 +18,6 @@ class CustomerShellScreen extends ConsumerWidget {
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (int index) => navigationShell.goBranch(
           index,
-          // Neu bam lai tab dang dung -> quay ve root cua tab do (UX chuan).
           initialLocation: index == navigationShell.currentIndex,
         ),
         destinations: [
@@ -45,9 +37,6 @@ class CustomerShellScreen extends ConsumerWidget {
             label: 'Tiệm',
           ),
           NavigationDestination(
-            // Badge so thong bao chua doc - Riverpod tu rebuild moi khi
-            // `unreadNotificationCountProvider` doi (vd: sau khi doc 1
-            // thong bao o tab "Thong bao"), khong can tu quan ly state rieng.
             icon: Badge(
               isLabelVisible: unreadCount > 0,
               label: Text('$unreadCount'),

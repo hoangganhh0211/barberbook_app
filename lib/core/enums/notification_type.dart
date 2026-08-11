@@ -1,5 +1,3 @@
-/// Loai thong bao - PHAI khop CHINH XAC voi CHECK constraint trong
-/// `supabase/schema_notifications.sql` ('general','booking','promotion').
 enum NotificationType {
   general,
   booking,

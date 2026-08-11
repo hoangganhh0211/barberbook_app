@@ -13,8 +13,6 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(ref.watch(notificationServiceProvider));
 });
-
-/// Danh sach thong bao cua khach dang dang nhap - dung o tab "Thong bao".
 final notificationListProvider = FutureProvider<List<NotificationModel>>((ref) async {
   final result = await ref.watch(notificationRepositoryProvider).fetchMyNotifications();
   switch (result) {
@@ -24,10 +22,6 @@ final notificationListProvider = FutureProvider<List<NotificationModel>>((ref) a
       throw failure;
   }
 });
-
-/// So thong bao CHUA DOC - dung de hien Badge tren icon tab "Thong bao"
-/// (xem `customer_shell_screen.dart`). Tra ve 0 trong luc dang loading/loi
-/// (khong hien badge sai lech thay vi bao loi ngay tren Bottom Navigation).
 final unreadNotificationCountProvider = Provider<int>((ref) {
   final AsyncValue<List<NotificationModel>> notificationsAsync = ref.watch(notificationListProvider);
   return notificationsAsync.maybeWhen(

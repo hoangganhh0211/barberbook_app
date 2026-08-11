@@ -5,9 +5,6 @@ import 'package:barberbook_app/core/error/supabase_error_mapper.dart';
 import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/features/search_shop_stylist/service/shop_service.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// Interface truu tuong - Provider PHAI phu thuoc vao day, KHONG phu thuoc
-/// truc tiep [ShopRepositoryImpl] (Dependency Inversion), de de test.
 abstract class ShopRepository {
   Future<Result<List<ShopModel>>> fetchShops({String? searchQuery});
 

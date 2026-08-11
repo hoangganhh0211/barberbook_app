@@ -1,6 +1,3 @@
-/// Trang thai cua 1 booking - PHAI khop CHINH XAC voi CHECK constraint
-/// trong `supabase/schema_bookings.sql` ('pending','confirmed','completed',
-/// 'cancelled') - doi 1 ben PHAI doi ca 2.
 enum BookingStatus {
   pending,
   confirmed,
@@ -18,7 +15,6 @@ enum BookingStatus {
       case 'cancelled':
         return BookingStatus.cancelled;
       default:
-        // TODO(booking): gui log/crashlytics khi gap status la (BE/FE contract mismatch)
         return BookingStatus.pending;
     }
   }

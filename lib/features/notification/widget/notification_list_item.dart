@@ -5,10 +5,6 @@ import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/utils/formatters.dart';
 import 'package:barberbook_app/features/notification/model/notification_model.dart';
-
-/// 1 dong trong Trung tam Thong bao. Thong bao CHUA doc duoc lam noi bat
-/// (nen dam hon, cham tron mau cam) - dung theo quy uoc UX pho bien cho
-/// danh sach thong bao.
 class NotificationListItem extends StatelessWidget {
   const NotificationListItem({required this.notification, required this.onTap, super.key});
 

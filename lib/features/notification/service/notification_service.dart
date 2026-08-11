@@ -1,8 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:barberbook_app/features/notification/model/notification_model.dart';
-
-/// Tang DUY NHAT duoc phep import `supabase_flutter` cho du lieu Thong bao.
 class NotificationService {
   NotificationService(this._client);
 

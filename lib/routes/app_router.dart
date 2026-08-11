@@ -19,12 +19,6 @@ import 'package:barberbook_app/features/search_shop_stylist/screen/shop_list_scr
 import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
 import 'package:barberbook_app/routes/route_guard.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
-
-/// Provider duy nhat cung cap [GoRouter] cho toan app (dung trong `app.dart`
-/// qua `MaterialApp.router(routerConfig: ref.watch(appRouterProvider))`).
-///
-/// KHONG tao GoRouter() o bat ky noi nao khac - moi thay doi ve routing
-/// (them route, doi redirect...) chi sua trong file nay va `route_guard.dart`.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final RouterRefreshNotifier refreshNotifier = RouterRefreshNotifier(ref);
 
@@ -49,9 +43,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        // '/customer/shops/:shopId' - route RIENG, KHONG nam trong
-        // StatefulShellRoute cua Customer Shell (xem branch customerShops
-        // ben duoi) de KHONG hien Bottom Navigation tren man Chi tiet.
         path: '${RoutePaths.customerShops}/:shopId',
         builder: (context, state) {
           final String shopId = state.pathParameters['shopId']!;
@@ -70,8 +61,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.bookingConfirm,
         builder: (context, state) => const BookingConfirmScreen(),
       ),
-
-      // ----- Customer Shell -----
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             CustomerShellScreen(navigationShell: navigationShell),
@@ -108,8 +97,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ]),
         ],
       ),
-
-      // ----- Partner Shell -----
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             PartnerShellScreen(navigationShell: navigationShell),

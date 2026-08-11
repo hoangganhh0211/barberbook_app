@@ -1,12 +1,4 @@
--- ============================================================================
--- BarberBook - Supabase Schema (Sprint 4: Trung tam Thong bao - US-NOTIFY-012)
--- An toan khi chay lai NHIEU LAN (idempotent). Chay SAU schema_bookings.sql.
--- ============================================================================
-
--- ----------------------------------------------------------------------------
--- 1. Bang notifications - thong bao trong app (rieng biet voi Push
---    Notification that qua Firebase - xem ghi chu pham vi trong hoi thoai).
--- ----------------------------------------------------------------------------
+-- 1. Bang notifications - thong bao trong app
 create table if not exists public.notifications (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null references public.profiles (id) on delete cascade,
@@ -24,11 +16,6 @@ create index if not exists notifications_customer_id_idx on public.notifications
 
 -- ----------------------------------------------------------------------------
 -- 2. Trigger: TU DONG sinh thong bao khi booking duoc TAO MOI hoac DOI
---    `status`. Day la nguon thong bao DUY NHAT o Sprint 4 (chua co Partner
---    Dashboard de Owner/Staff tu xac nhan/huy - Sprint 6-7). Khi Partner
---    App hoan thien va tu doi status qua UPDATE binh thuong (khong phai
---    thao tac dac biet), trigger nay se TU DONG hoat dong dung, KHONG can
---    sua gi them.
 -- ----------------------------------------------------------------------------
 create or replace function public.notify_booking_change()
 returns trigger
@@ -74,9 +61,7 @@ create trigger on_booking_notify
   for each row execute procedure public.notify_booking_change();
 
 -- ----------------------------------------------------------------------------
--- 3. Row Level Security - chi xem/sua (danh dau da doc) thong bao CUA
---    CHINH MINH. KHONG co policy INSERT/DELETE cho client - chi trigger
---    (security definer) moi duoc tao thong bao.
+-- 3. Row Level Security - chi xem/sua (danh dau da doc) thong bao cua chinh minh.
 -- ----------------------------------------------------------------------------
 alter table public.notifications enable row level security;
 

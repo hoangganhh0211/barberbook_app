@@ -10,10 +10,6 @@ import 'package:barberbook_app/features/home_customer/widget/featured_shop_card.
 import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provider.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// Man goc cua tab "Home" (US-HOME-013 - ban rut gon Sprint 2: loi chao +
-/// section Tiem noi bat, dung LAI `shopListProvider` da co tu Chuc nang 1/2,
-/// KHONG tao provider rieng - tranh 2 nguon du lieu Tiem khac nhau).
 class HomeCustomerScreen extends ConsumerWidget {
   const HomeCustomerScreen({super.key});
 
@@ -46,11 +42,6 @@ class HomeCustomerScreen extends ConsumerWidget {
               children: [
                 Text('Tiệm nổi bật', style: AppTextStyles.titleMedium),
                 TextButton(
-                  // Dieu huong sang tab "Tiem" trong cung 1 Shell. Dung
-                  // `context.go` (khong phai `navigationShell.goBranch`) vi
-                  // man nay khong co san tham chieu toi navigationShell -
-                  // don gian hoa, chap nhan danh doi khong giu scroll cua
-                  // tab dich (khong dang ke voi UX o day).
                   onPressed: () => context.go(RoutePaths.customerShops),
                   child: const Text('Xem tất cả'),
                 ),

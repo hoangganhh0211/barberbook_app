@@ -12,14 +12,6 @@ import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/features/booking/model/booking_draft.dart';
 import 'package:barberbook_app/features/booking/provider/booking_draft_provider.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
-
-/// Man Buoc 3 cua luong Dat lich: chon Ngay + Gio.
-///
-/// GIOI HAN PHAM VI Sprint 3 (ghi ro de khong nham la bug): khung gio duoc
-/// SINH CO DINH theo gio mo cua gia dinh 09:00-19:00, moi 30 phut MOT lan -
-/// CHUA kiem tra trung lich voi Tho cu the (can he thong Lich lam viec that
-/// su, thuoc Sprint 6). Khi co du lieu that, chi can thay [_generateTimeSlots]
-/// bang 1 API tra ve slot con trong, KHONG anh huong phan con lai cua man.
 class BookingDateTimeScreen extends ConsumerStatefulWidget {
   const BookingDateTimeScreen({super.key});
 

@@ -14,14 +14,6 @@ final localStorageServiceProvider = Provider<LocalStorageService>((ref) {
   return LocalStorageService(prefs);
 });
 
-/// [SupabaseClient] dung chung toan app - moi `XxxService` (Auth, Booking,
-/// Shop...) se `ref.watch(supabaseClientProvider)` thay vi tu goi
-/// `Supabase.instance.client` rai rac o nhieu noi.
-///
-/// Session/token refresh gio DA duoc chinh SDK Supabase tu quan ly ben
-/// trong (khong con can `AuthInterceptor`/`tokenRefresher` thu cong nhu
-/// khi dung Dio truoc day) - day chinh la ly do file nay ngan di rat nhieu
-/// so voi ban cu.
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
 });

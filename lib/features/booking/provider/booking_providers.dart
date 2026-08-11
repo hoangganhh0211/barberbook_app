@@ -13,10 +13,6 @@ final bookingServiceProvider = Provider<BookingService>((ref) {
 final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
   return BookingRepositoryImpl(ref.watch(bookingServiceProvider));
 });
-
-/// Danh sach lich hen cua khach dang dang nhap - dung o tab "Dat lich"
-/// (Chuc nang 4). Goi `ref.invalidate(myBookingsProvider)` sau khi tao moi
-/// hoac huy 1 booking de lam moi danh sach.
 final myBookingsProvider = FutureProvider<List<BookingWithDetails>>((ref) async {
   final result = await ref.watch(bookingRepositoryProvider).fetchMyBookings();
   switch (result) {

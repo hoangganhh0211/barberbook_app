@@ -5,34 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
-
-/// Cau [ChangeNotifier] de lam cau noi giua Riverpod ([AuthController]) va
-/// `GoRouter.refreshListenable` (GoRouter chi hieu ve `Listenable`, khong
-/// hieu ve Riverpod Provider truc tiep).
-///
-/// Moi khi [authControllerProvider] thay doi state (dang nhap/dang xuat),
-/// `notifyListeners()` duoc goi -> GoRouter tu dong chay lai ham `redirect`
-/// ben duoi de dieu huong lai cho dung.
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(Ref ref) {
     ref.listen<AuthState>(authControllerProvider, (_, __) => notifyListeners());
   }
 }
-
-/// Logic redirect trung tam - noi DUY NHAT quyet dinh:
-/// 1. Chua biet trang thai auth -> o lai Splash.
-/// 2. Chua dang nhap -> ep ve Login (tru khi dang o Register/OTP - cung
-///    thuoc nhom "pre-auth", cho phep o lai).
-/// 3. Da dang nhap nhung dang o Splash/Login/Register/OTP -> dua vao dung
-///    Shell theo Role.
-/// 4. Da dang nhap nhung co truy cap sai khu vuc (Customer vao /partner/...
-///    hoac nguoc lai) -> dua ve dung Shell cua minh (chan truy cap cheo).
 String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
   final String location = routerState.matchedLocation;
   final bool isOnSplash = location == RoutePaths.splash;
-  // "Pre-auth area": cac man nguoi dung CHUA dang nhap duoc phep dung lai -
-  // dang ky them man moi (vd: Quen mat khau) CHI can them vao list nay,
-  // khong phai sua logic redirect.
   final bool isOnPreAuthArea = location == RoutePaths.login || location == RoutePaths.register;
   final bool isOnCustomerArea = location.startsWith(RoutePaths.customerRoot);
   final bool isOnPartnerArea = location.startsWith(RoutePaths.partnerRoot);

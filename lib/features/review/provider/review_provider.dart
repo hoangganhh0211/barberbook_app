@@ -13,10 +13,6 @@ final reviewServiceProvider = Provider<ReviewService>((ref) {
 final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
   return ReviewRepositoryImpl(ref.watch(reviewServiceProvider));
 });
-
-/// Danh sach danh gia cua 1 tiem (theo `shopId`) - dung o Chi tiet Tiem
-/// (Chuc nang 2). Sau khi gui danh gia moi thanh cong, goi
-/// `ref.invalidate(reviewListProvider(shopId))` de lam moi danh sach.
 final reviewListProvider = FutureProvider.family<List<ReviewModel>, String>((ref, shopId) async {
   final result = await ref.watch(reviewRepositoryProvider).fetchReviewsByShop(shopId);
   switch (result) {

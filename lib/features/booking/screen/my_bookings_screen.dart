@@ -14,11 +14,6 @@ import 'package:barberbook_app/features/booking/widget/booking_list_item.dart';
 import 'package:barberbook_app/features/notification/provider/notification_provider.dart';
 import 'package:barberbook_app/features/review/widget/write_review_sheet.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
-
-/// Man goc cua tab "Dat lich" (US-MYBOOKING-010) - 2 tab "Sap toi" (pending/
-/// confirmed) va "Lich su" (completed/cancelled), phan loai theo `status`
-/// (KHONG theo thoi gian) - vi Sprint 3 chua co co che tu dong chuyen
-/// booking sang 'completed' khi qua gio (thuoc Partner Dashboard, Sprint 7).
 class MyBookingsScreen extends ConsumerWidget {
   const MyBookingsScreen({super.key});
 
@@ -59,9 +54,6 @@ class MyBookingsScreen extends ConsumerWidget {
         ..showSnackBar(SnackBar(content: Text(failure.message), backgroundColor: AppColors.error));
     } else {
       ref.invalidate(myBookingsProvider);
-      // Trigger DB cung tu tao thong bao "Lich hen da bi huy" ngay luc nay -
-      // lam moi de tab "Thong bao"/Badge cap nhat ngay (cung ly do voi
-      // `booking_confirm_screen.dart`).
       ref.invalidate(notificationListProvider);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -76,11 +68,6 @@ class MyBookingsScreen extends ConsumerWidget {
       shopId: booking.shopId,
       shopName: booking.shop.name,
     );
-    // Khong can xu ly gia tri tra ve - danh gia thanh cong hay khong deu
-    // khong lam thay doi UI cua man nay (khong co field "da danh gia chua"
-    // trong BookingWithDetails o Sprint 4, xem ghi chu trong
-    // `write_review_sheet.dart`). Neu nguoi dung bam Danh gia lan 2 cho
-    // cung 1 booking, RLS se tu chan va hien loi ro rang.
   }
 
   @override
@@ -146,11 +133,7 @@ class _BookingTabList extends StatelessWidget {
 
   final List<BookingWithDetails> bookings;
   final String emptyText;
-
-  /// `null` = khong cho huy (dung cho tab "Lich su").
   final void Function(BookingWithDetails booking)? onCancel;
-
-  /// `null` = khong cho danh gia (dung cho tab "Sap toi").
   final void Function(BookingWithDetails booking)? onReview;
 
   @override

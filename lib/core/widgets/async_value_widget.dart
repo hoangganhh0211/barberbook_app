@@ -6,24 +6,6 @@ import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/core/widgets/error_state_widget.dart';
 import 'package:barberbook_app/core/widgets/skeleton_loading.dart';
 
-/// Widget dieu phoi CHUNG cho 4 trang thai: Loading / Error / Empty / Data.
-///
-/// Day la widget duy nhat ma cac man hinh danh sach (booking, dich vu,
-/// nhan su...) nen dung de tranh lap code `.when(loading:, error:, data:)`
-/// va tu ve them logic empty-check o tung noi.
-///
-/// Vi du su dung trong 1 Screen:
-/// ```dart
-/// final servicesAsync = ref.watch(serviceListProvider);
-/// return AsyncValueWidget<List<ServiceModel>>(
-///   value: servicesAsync,
-///   skeletonItemCount: 5,
-///   isEmpty: (list) => list.isEmpty,
-///   emptyTitle: 'Chưa có dịch vụ nào',
-///   onRetry: () => ref.invalidate(serviceListProvider),
-///   dataBuilder: (services) => ServiceListView(services: services),
-/// );
-/// ```
 class AsyncValueWidget<T> extends StatelessWidget {
   const AsyncValueWidget({
     required this.value,
@@ -42,8 +24,6 @@ class AsyncValueWidget<T> extends StatelessWidget {
   final Widget Function(T data) dataBuilder;
   final VoidCallback onRetry;
 
-  /// Tra ve true neu du lieu ben trong [T] duoc coi la "rong" (vd:
-  /// `(list) => list.isEmpty`). De null neu [T] khong bao gio co Empty State.
   final bool Function(T data)? isEmpty;
 
   final String emptyTitle;

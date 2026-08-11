@@ -3,16 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 
-/// ThemeData Material 3 tap trung.
-///
-/// LUU Y: thuong hieu BarberBook (theo Figma) hien CHI co 1 theme Dark -
-/// chua co yeu cau Light Mode. Vi vay chi cung cap `AppTheme.dark`. Neu
-/// sau nay can Light Mode (vd: yeu cau Accessibility), them `AppTheme.light`
-/// song song va bo sung `themeMode`/toggle trong `app.dart` - khong sua
-/// theme nay theo huong "doan truoc".
-///
-/// `app.dart` CHI goi `AppTheme.dark` - khong noi nao khac duoc phep tu
-/// tao ThemeData rieng, tranh UI khong dong bo.
+
 abstract class AppTheme {
   static ThemeData get dark {
     final ColorScheme colorScheme = ColorScheme.fromSeed(
@@ -59,7 +50,7 @@ abstract class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        // Vien do khi loi - dung theo muc 4.2.3 "Vien do #EF4444 bao quanh input".
+        // Vien do khi loi.
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
@@ -72,13 +63,6 @@ abstract class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          // CHI DINH RO backgroundColor - KHONG de mac dinh lay tu
-          // `colorScheme.primary`. Ly do: `ColorScheme.fromSeed()` (dung o
-          // tren) tu tinh toan lai 1 tong mau "primary" theo thuat toan
-          // Material 3 (uu tien do tuong phan/hai hoa tong the), KHONG giu
-          // nguyen chinh xac gia tri seed - dan tren Dark Mode ra 1 mau nau
-          // xin thay vi cam thuong hieu that (#F97316), khien nut bam gan
-          // nhu "mat chu" vi ca nen lan chu deu toi.
           backgroundColor: AppColors.primary,
           disabledBackgroundColor: AppColors.primary.withOpacity(0.35),
           disabledForegroundColor: AppColors.onPrimary.withOpacity(0.6),
@@ -90,8 +74,6 @@ abstract class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          // Cung ly do voi elevatedButtonTheme o tren - chi dinh ro thay vi
-          // de mac dinh lay tu `colorScheme.primary`.
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary),
           minimumSize: const Size.fromHeight(52),
@@ -107,12 +89,6 @@ abstract class AppTheme {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      // Dung cho widget `NavigationBar` (Material 3) dang dung trong
-      // CustomerShellScreen/PartnerShellScreen - KHONG phai
-      // `BottomNavigationBar` (widget Material 2 cu). `indicatorColor` chinh
-      // la "pill" mau cam bao quanh icon dang active trong Figma; icon/label
-      // tren pill do dung mau `onPrimary` (dam) de du tuong phan, tranh
-      // trang hop trang-tren-cam kho doc.
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary,

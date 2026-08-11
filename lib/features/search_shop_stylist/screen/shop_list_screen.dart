@@ -10,9 +10,6 @@ import 'package:barberbook_app/features/search_shop_stylist/provider/shop_provid
 import 'package:barberbook_app/features/search_shop_stylist/widget/shop_list_item.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/shop_model.dart';
-
-/// Man goc cua tab "Tiem" (US-SEARCH-008 - ban rut gon Sprint 2: tim kiem
-/// theo ten, chua co bo loc nang cao - se bo sung sau neu can).
 class ShopListScreen extends ConsumerStatefulWidget {
   const ShopListScreen({super.key});
 
@@ -31,9 +28,6 @@ class _ShopListScreenState extends ConsumerState<ShopListScreen> {
     _searchController.dispose();
     super.dispose();
   }
-
-  /// Debounce 400ms - tranh goi API Supabase lien tuc theo tung ky tu go,
-  /// chi goi khi nguoi dung NGUNG go trong 400ms.
   void _onSearchChanged(String value) {
     setState(() {}); // cap nhat ngay icon "x" xoa tim kiem, khong can doi debounce
     _debounce?.cancel();

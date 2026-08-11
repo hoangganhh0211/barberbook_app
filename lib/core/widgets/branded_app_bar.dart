@@ -4,16 +4,7 @@ import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/app_logo.dart';
 
-/// 2 bien the TopAppBar chung theo dung Figma:
-/// - [BrandedAppBarVariant.logoCentered]: logo (icon+chu) can giua - dung
-///   cho man goc cua moi Shell (Home Customer/Partner Dashboard...).
-/// - [BrandedAppBarVariant.titleOnly]: chi chu "BarberBook" in nghieng, can
-///   trai canh nut back - dung cho cac man con don gian (vd: man Dieu
-///   khoan, Chinh sach...).
-///
-/// Bien the thu 4 trong Figma (co badge "Mo cua" + nut yeu thich) la AppBar
-/// RIENG cua man Chi tiet Tiem (`shop_detail_app_bar.dart`), KHONG dua vao
-/// day de tranh widget nay "gong minh" nhieu use-case khac nhau.
+
 enum BrandedAppBarVariant { logoCentered, titleOnly }
 
 class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -29,9 +20,6 @@ class BrandedAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final List<Widget>? actions;
 
-  /// Widget phu ben duoi AppBar (vd: `TabBar`) - dung cho man co nhieu tab
-  /// con (vd: tab "Dat lich": Sap toi/Lich su, xem `my_bookings_screen.dart`).
-  /// Mac dinh `null` - moi man goc khac KHONG bi anh huong.
   final PreferredSizeWidget? bottom;
 
   @override

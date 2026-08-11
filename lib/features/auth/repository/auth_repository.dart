@@ -5,27 +5,13 @@ import 'package:barberbook_app/core/error/supabase_error_mapper.dart';
 import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/features/auth/model/user_session.dart';
 import 'package:barberbook_app/features/auth/service/auth_service.dart';
-
-/// Interface truu tuong - moi Provider/Controller PHAI phu thuoc vao day,
-/// KHONG phu thuoc truc tiep [AuthRepositoryImpl] (Dependency Inversion) -
-/// de de thay the bang Fake khi viet unit test cho [AuthController].
 abstract class AuthRepository {
-  /// Tra ve `null` neu thanh cong, [Failure] neu that bai. KHONG can tra ve
-  /// [UserSession] o day - [AuthController] se tu cap nhat state khi
-  /// `onAuthStateChange` phat su kien dang nhap (xem [AuthService]).
   Future<Failure?> login({required String phone, required String password});
-
-  /// Dang ky bang SDT + Ho ten + Mat khau - KHONG qua buoc OTP. Thanh cong
-  /// = tao tai khoan VA dang nhap luon ngay lap tuc.
   Future<Failure?> register({
     required String phone,
     required String fullName,
     required String password,
   });
-
-  /// Doc ho ten + role tu bang `profiles` - dung moi khi `onAuthStateChange`
-  /// bao co session (dang nhap moi, khoi phuc phien, hoac token vua duoc
-  /// tu dong refresh).
   Future<Result<UserSession>> fetchUserSession(String userId);
 
   Future<void> logout();
@@ -75,13 +61,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _authService.signOut();
     } catch (_) {
-      // Best-effort - Supabase SDK van tu xoa session luu local du goi API
-      // that bai (vd: mat mang dung luc bam Dang xuat).
     }
   }
-
-  /// Helper dung chung cho moi action CHI can biet thanh cong/that bai
-  /// (khong can du lieu tra ve) - tranh lap try/catch giong het nhau.
   Future<Failure?> _runVoidAction(Future<void> Function() action) async {
     try {
       await action();

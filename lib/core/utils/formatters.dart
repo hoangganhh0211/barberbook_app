@@ -1,7 +1,5 @@
 import 'package:intl/intl.dart';
 
-/// Cac ham format dung chung - dung `intl` (da co san tu Sprint 0) thay vi
-/// tu viet regex chen dau phay thu cong.
 abstract class Formatters {
   static final NumberFormat _currencyFormat = NumberFormat.currency(
     locale: 'vi_VN',
@@ -24,17 +22,14 @@ abstract class Formatters {
   static final DateFormat _timeFormat = DateFormat('HH:mm');
   static final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'vi_VN');
 
-  /// Vi du: "Thứ Ba, 12/08/2026 - 14:30". CAN GOI
-  /// `initializeDateFormatting('vi_VN')` truoc (da lam san trong
-  /// `main.dart`), neu khong se nem `LocaleDataException` khi goi ham nay.
+  /// Vi du: "Thứ Ba, 12/08/2026 - 14:30".
   static String dateTime(DateTime value) => _dateTimeFormat.format(value);
 
   static String time(DateTime value) => _timeFormat.format(value);
 
   static String date(DateTime value) => _dateFormat.format(value);
 
-  /// Vi du: "Vừa xong", "5 phút trước", "3 giờ trước", "2 ngày trước". Qua
-  /// 7 ngay se hien ngay thang cu the (khong con y nghia "gan day").
+  /// Vi du: "Vừa xong", "5 phút trước", "3 giờ trước", "2 ngày trước".
   static String relativeTime(DateTime value) {
     final Duration diff = DateTime.now().difference(value);
     if (diff.inMinutes < 1) return 'Vừa xong';

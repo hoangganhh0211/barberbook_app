@@ -4,10 +4,6 @@ import 'package:barberbook_app/core/enums/notification_type.dart';
 
 part 'notification_model.freezed.dart';
 part 'notification_model.g.dart';
-
-/// 1 thong bao trong app - doc tu bang `notifications` (xem
-/// `supabase/schema_notifications.sql`). CHI duoc TAO qua trigger DB
-/// (khi booking thay doi), KHONG co API tao thu cong tu Flutter.
 @freezed
 class NotificationModel with _$NotificationModel {
   const factory NotificationModel({
