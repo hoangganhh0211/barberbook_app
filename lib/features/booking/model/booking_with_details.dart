@@ -13,6 +13,11 @@ class BookingWithDetails with _$BookingWithDetails {
     @JsonKey(name: 'end_time') required DateTime endTime,
     @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson) required BookingStatus status,
     @JsonKey(name: 'total_price') required double totalPrice,
+    // Snapshot ten khach hang (trigger DB tu dien, xem
+    // schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
+    // (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
+    // TRUOC khi chay migration nay.
+    @JsonKey(name: 'customer_name') @Default('') String customerName,
     @JsonKey(name: 'shops') required BookingShopInfo shop,
     @JsonKey(name: 'services') required BookingServiceInfo service,
   }) = _BookingWithDetails;

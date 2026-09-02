@@ -15,6 +15,7 @@ _$BookingWithDetailsImpl _$$BookingWithDetailsImplFromJson(
       endTime: DateTime.parse(json['end_time'] as String),
       status: _statusFromJson(json['status'] as String),
       totalPrice: (json['total_price'] as num).toDouble(),
+      customerName: json['customer_name'] as String? ?? '',
       shop: BookingShopInfo.fromJson(json['shops'] as Map<String, dynamic>),
       service:
           BookingServiceInfo.fromJson(json['services'] as Map<String, dynamic>),
@@ -29,6 +30,7 @@ Map<String, dynamic> _$$BookingWithDetailsImplToJson(
       'end_time': instance.endTime.toIso8601String(),
       'status': _statusToJson(instance.status),
       'total_price': instance.totalPrice,
+      'customer_name': instance.customerName,
       'shops': instance.shop,
       'services': instance.service,
     };

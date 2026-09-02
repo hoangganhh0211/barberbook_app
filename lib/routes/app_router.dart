@@ -17,6 +17,7 @@ import 'package:barberbook_app/features/profile/screen/profile_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_detail_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_list_screen.dart';
 import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
+import 'package:barberbook_app/features/staff_schedule/screen/staff_schedule_screen.dart';
 import 'package:barberbook_app/routes/route_guard.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -111,8 +112,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.partnerSchedule,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Lịch làm việc của tôi'),
+              builder: (context, state) => const StaffScheduleScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

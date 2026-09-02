@@ -43,7 +43,7 @@ class BookingService {
 
     final List<Map<String, dynamic>> rows = await _client
         .from('bookings')
-        .select('id, shop_id, start_time, end_time, status, total_price, '
+        .select('id, shop_id, start_time, end_time, status, total_price, customer_name, '
             'shops(name, cover_image_url), services(name, duration_minutes)')
         .eq('customer_id', customerId)
         .order('start_time', ascending: false);

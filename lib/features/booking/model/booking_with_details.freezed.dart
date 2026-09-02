@@ -30,7 +30,13 @@ mixin _$BookingWithDetails {
   @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
   BookingStatus get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_price')
-  double get totalPrice => throw _privateConstructorUsedError;
+  double get totalPrice =>
+      throw _privateConstructorUsedError; // Snapshot ten khach hang (trigger DB tu dien, xem
+// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
+// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
+// TRUOC khi chay migration nay.
+  @JsonKey(name: 'customer_name')
+  String get customerName => throw _privateConstructorUsedError;
   @JsonKey(name: 'shops')
   BookingShopInfo get shop => throw _privateConstructorUsedError;
   @JsonKey(name: 'services')
@@ -60,6 +66,7 @@ abstract class $BookingWithDetailsCopyWith<$Res> {
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
       BookingStatus status,
       @JsonKey(name: 'total_price') double totalPrice,
+      @JsonKey(name: 'customer_name') String customerName,
       @JsonKey(name: 'shops') BookingShopInfo shop,
       @JsonKey(name: 'services') BookingServiceInfo service});
 
@@ -88,6 +95,7 @@ class _$BookingWithDetailsCopyWithImpl<$Res, $Val extends BookingWithDetails>
     Object? endTime = null,
     Object? status = null,
     Object? totalPrice = null,
+    Object? customerName = null,
     Object? shop = null,
     Object? service = null,
   }) {
@@ -116,6 +124,10 @@ class _$BookingWithDetailsCopyWithImpl<$Res, $Val extends BookingWithDetails>
           ? _value.totalPrice
           : totalPrice // ignore: cast_nullable_to_non_nullable
               as double,
+      customerName: null == customerName
+          ? _value.customerName
+          : customerName // ignore: cast_nullable_to_non_nullable
+              as String,
       shop: null == shop
           ? _value.shop
           : shop // ignore: cast_nullable_to_non_nullable
@@ -164,6 +176,7 @@ abstract class _$$BookingWithDetailsImplCopyWith<$Res>
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
       BookingStatus status,
       @JsonKey(name: 'total_price') double totalPrice,
+      @JsonKey(name: 'customer_name') String customerName,
       @JsonKey(name: 'shops') BookingShopInfo shop,
       @JsonKey(name: 'services') BookingServiceInfo service});
 
@@ -192,6 +205,7 @@ class __$$BookingWithDetailsImplCopyWithImpl<$Res>
     Object? endTime = null,
     Object? status = null,
     Object? totalPrice = null,
+    Object? customerName = null,
     Object? shop = null,
     Object? service = null,
   }) {
@@ -220,6 +234,10 @@ class __$$BookingWithDetailsImplCopyWithImpl<$Res>
           ? _value.totalPrice
           : totalPrice // ignore: cast_nullable_to_non_nullable
               as double,
+      customerName: null == customerName
+          ? _value.customerName
+          : customerName // ignore: cast_nullable_to_non_nullable
+              as String,
       shop: null == shop
           ? _value.shop
           : shop // ignore: cast_nullable_to_non_nullable
@@ -243,6 +261,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
       required this.status,
       @JsonKey(name: 'total_price') required this.totalPrice,
+      @JsonKey(name: 'customer_name') this.customerName = '',
       @JsonKey(name: 'shops') required this.shop,
       @JsonKey(name: 'services') required this.service});
 
@@ -266,6 +285,13 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
   @override
   @JsonKey(name: 'total_price')
   final double totalPrice;
+// Snapshot ten khach hang (trigger DB tu dien, xem
+// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
+// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
+// TRUOC khi chay migration nay.
+  @override
+  @JsonKey(name: 'customer_name')
+  final String customerName;
   @override
   @JsonKey(name: 'shops')
   final BookingShopInfo shop;
@@ -275,7 +301,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
 
   @override
   String toString() {
-    return 'BookingWithDetails(id: $id, shopId: $shopId, startTime: $startTime, endTime: $endTime, status: $status, totalPrice: $totalPrice, shop: $shop, service: $service)';
+    return 'BookingWithDetails(id: $id, shopId: $shopId, startTime: $startTime, endTime: $endTime, status: $status, totalPrice: $totalPrice, customerName: $customerName, shop: $shop, service: $service)';
   }
 
   @override
@@ -291,6 +317,8 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.totalPrice, totalPrice) ||
                 other.totalPrice == totalPrice) &&
+            (identical(other.customerName, customerName) ||
+                other.customerName == customerName) &&
             (identical(other.shop, shop) || other.shop == shop) &&
             (identical(other.service, service) || other.service == service));
   }
@@ -298,7 +326,7 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, shopId, startTime, endTime,
-      status, totalPrice, shop, service);
+      status, totalPrice, customerName, shop, service);
 
   /// Create a copy of BookingWithDetails
   /// with the given fields replaced by the non-null parameter values.
@@ -326,6 +354,7 @@ abstract class _BookingWithDetails implements BookingWithDetails {
       @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
       required final BookingStatus status,
       @JsonKey(name: 'total_price') required final double totalPrice,
+      @JsonKey(name: 'customer_name') final String customerName,
       @JsonKey(name: 'shops') required final BookingShopInfo shop,
       @JsonKey(name: 'services')
       required final BookingServiceInfo service}) = _$BookingWithDetailsImpl;
@@ -349,7 +378,13 @@ abstract class _BookingWithDetails implements BookingWithDetails {
   BookingStatus get status;
   @override
   @JsonKey(name: 'total_price')
-  double get totalPrice;
+  double get totalPrice; // Snapshot ten khach hang (trigger DB tu dien, xem
+// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
+// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
+// TRUOC khi chay migration nay.
+  @override
+  @JsonKey(name: 'customer_name')
+  String get customerName;
   @override
   @JsonKey(name: 'shops')
   BookingShopInfo get shop;
