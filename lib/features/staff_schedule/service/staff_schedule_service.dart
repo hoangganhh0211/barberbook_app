@@ -20,6 +20,20 @@ class StaffScheduleService {
     return row?['id'] as String?;
   }
 
+  Future<({String id, String shopId})?> fetchMyStaffInfo() async {
+    final String? userId = _client.auth.currentUser?.id;
+    if (userId == null) return null;
+
+    final Map<String, dynamic>? row = await _client
+        .from('staff')
+        .select('id, shop_id')
+        .eq('profile_id', userId)
+        .maybeSingle();
+
+    if (row == null) return null;
+    return (id: row['id'] as String, shopId: row['shop_id'] as String);
+  }
+
   Future<List<BookingWithDetails>> fetchMySchedule({
     required DateTime rangeStart,
     required DateTime rangeEnd,

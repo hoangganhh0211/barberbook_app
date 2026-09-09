@@ -9,6 +9,8 @@ import 'package:barberbook_app/features/staff_schedule/service/staff_schedule_se
 abstract class StaffScheduleRepository {
   Future<Result<String?>> fetchMyStaffId();
 
+  Future<Result<({String id, String shopId})?>> fetchMyStaffInfo();
+
   Future<Result<List<BookingWithDetails>>> fetchMySchedule({
     required DateTime rangeStart,
     required DateTime rangeEnd,
@@ -25,6 +27,18 @@ class StaffScheduleRepositoryImpl implements StaffScheduleRepository {
     try {
       final String? staffId = await _service.fetchMyStaffId();
       return Success(staffId);
+    } on PostgrestException catch (e) {
+      return ResultFailure(mapSupabasePostgrestError(e));
+    } catch (_) {
+      return const ResultFailure(NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.'));
+    }
+  }
+
+  @override
+  Future<Result<({String id, String shopId})?>> fetchMyStaffInfo() async {
+    try {
+      final info = await _service.fetchMyStaffInfo();
+      return Success(info);
     } on PostgrestException catch (e) {
       return ResultFailure(mapSupabasePostgrestError(e));
     } catch (_) {

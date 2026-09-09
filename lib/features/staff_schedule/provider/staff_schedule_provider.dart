@@ -24,6 +24,16 @@ final myStaffIdProvider = FutureProvider<String?>((ref) async {
   }
 });
 
+final myStaffInfoProvider = FutureProvider<({String id, String shopId})?>((ref) async {
+  final result = await ref.watch(staffScheduleRepositoryProvider).fetchMyStaffInfo();
+  switch (result) {
+    case Success(:final data):
+      return data;
+    case ResultFailure(:final failure):
+      throw failure;
+  }
+});
+
 class ScheduleRange {
   const ScheduleRange({required this.start, required this.end});
 
@@ -37,6 +47,7 @@ class ScheduleRange {
   @override
   int get hashCode => Object.hash(start, end);
 }
+
 
 final myScheduleProvider = FutureProvider.family<List<BookingWithDetails>, ScheduleRange>(
   (ref, range) async {

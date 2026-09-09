@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
@@ -10,7 +11,15 @@ import 'package:barberbook_app/features/booking/model/booking_with_details.dart'
 import 'package:barberbook_app/features/staff_schedule/provider/staff_schedule_provider.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/staff_schedule_item.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/week_selector.dart';
+import 'package:barberbook_app/routes/route_paths.dart';
 
+/// Man goc cua tab "Lich lam viec" trong Partner Shell (US-STAFF-002 - phan
+/// Staff). Hien danh sach lich hen DUOC GIAO cho tai khoan dang dang nhap
+/// trong 1 tuan, chuyen tuan qua lai duoc.
+///
+/// GIOI HAN PHAM VI Sprint 6: chi hien LICH HEN da co (tu Booking), CHUA co
+/// khai niem "ca lam viec co dinh" (vd: lam T2-T6, nghi T7-CN) - se bo sung
+/// neu co nhu cau thuc te ro rang hon.
 class StaffScheduleScreen extends ConsumerStatefulWidget {
   const StaffScheduleScreen({super.key});
 
@@ -41,7 +50,15 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
     final AsyncValue<String?> myStaffIdAsync = ref.watch(myStaffIdProvider);
 
     return Scaffold(
-      appBar: const BrandedAppBar(),
+      appBar: BrandedAppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.event_busy_outlined),
+            tooltip: 'Xin nghỉ phép',
+            onPressed: () => context.push(RoutePaths.partnerLeaveRequests),
+          ),
+        ],
+      ),
       body: myStaffIdAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
