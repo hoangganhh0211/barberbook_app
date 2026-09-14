@@ -7,19 +7,14 @@ import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/async_value_widget.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
+import 'package:barberbook_app/features/auth/model/user_session.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/staff_schedule/provider/staff_schedule_provider.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/staff_schedule_item.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/week_selector.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 
-/// Man goc cua tab "Lich lam viec" trong Partner Shell (US-STAFF-002 - phan
-/// Staff). Hien danh sach lich hen DUOC GIAO cho tai khoan dang dang nhap
-/// trong 1 tuan, chuyen tuan qua lai duoc.
-///
-/// GIOI HAN PHAM VI Sprint 6: chi hien LICH HEN da co (tu Booking), CHUA co
-/// khai niem "ca lam viec co dinh" (vd: lam T2-T6, nghi T7-CN) - se bo sung
-/// neu co nhu cau thuc te ro rang hon.
 class StaffScheduleScreen extends ConsumerStatefulWidget {
   const StaffScheduleScreen({super.key});
 
@@ -49,6 +44,9 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
   Widget build(BuildContext context) {
     final AsyncValue<String?> myStaffIdAsync = ref.watch(myStaffIdProvider);
 
+    final AuthState authState = ref.watch(authControllerProvider);
+    final bool isShopAdmin = authState is AuthAuthenticated && authState.session.role.isShopAdmin;
+
     return Scaffold(
       appBar: BrandedAppBar(
         actions: [
@@ -57,6 +55,12 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
             tooltip: 'Xin nghỉ phép',
             onPressed: () => context.push(RoutePaths.partnerLeaveRequests),
           ),
+          if (isShopAdmin)
+            IconButton(
+              icon: const Icon(Icons.fact_check_outlined),
+              tooltip: 'Duyệt đơn nghỉ',
+              onPressed: () => context.push(RoutePaths.partnerLeaveApproval),
+            ),
         ],
       ),
       body: myStaffIdAsync.when(
