@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
@@ -154,42 +153,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 if (kDebugMode) ...[
                   const SizedBox(height: 40),
-                  const _DebugRoleSwitcher(),
                 ],
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-class _DebugRoleSwitcher extends ConsumerWidget {
-  const _DebugRoleSwitcher();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.warning),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('DEBUG ONLY - bỏ qua backend', style: AppTextStyles.caption.copyWith(color: AppColors.warning)),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).debugSignInAs(UserRole.customer),
-            child: const Text('Vào với vai trò Khách hàng'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).debugSignInAs(UserRole.owner),
-            child: const Text('Vào với vai trò Owner'),
-          ),
-        ],
       ),
     );
   }

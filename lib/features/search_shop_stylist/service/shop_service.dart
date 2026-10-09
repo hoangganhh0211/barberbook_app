@@ -26,4 +26,14 @@ class ShopService {
         await _client.from('shops').select().eq('id', shopId).single();
     return ShopModel.fromJson(row);
   }
+  Future<ShopModel?> fetchMyOwnedShop() async {
+    final String? userId = _client.auth.currentUser?.id;
+    if (userId == null) return null;
+
+    final Map<String, dynamic>? row =
+        await _client.from('shops').select().eq('owner_id', userId).maybeSingle();
+
+    if (row == null) return null;
+    return ShopModel.fromJson(row);
+  }
 }

@@ -29,6 +29,10 @@ mixin _$StaffModel {
   String? get avatarUrl => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
   double get rating => throw _privateConstructorUsedError;
+  @JsonKey(name: 'profile_id')
+  String? get profileId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_active')
+  bool get isActive => throw _privateConstructorUsedError;
 
   /// Serializes this StaffModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -52,7 +56,9 @@ abstract class $StaffModelCopyWith<$Res> {
       @JsonKey(name: 'full_name') String fullName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
       String? bio,
-      double rating});
+      double rating,
+      @JsonKey(name: 'profile_id') String? profileId,
+      @JsonKey(name: 'is_active') bool isActive});
 }
 
 /// @nodoc
@@ -76,6 +82,8 @@ class _$StaffModelCopyWithImpl<$Res, $Val extends StaffModel>
     Object? avatarUrl = freezed,
     Object? bio = freezed,
     Object? rating = null,
+    Object? profileId = freezed,
+    Object? isActive = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -102,6 +110,14 @@ class _$StaffModelCopyWithImpl<$Res, $Val extends StaffModel>
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
               as double,
+      profileId: freezed == profileId
+          ? _value.profileId
+          : profileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isActive: null == isActive
+          ? _value.isActive
+          : isActive // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -120,7 +136,9 @@ abstract class _$$StaffModelImplCopyWith<$Res>
       @JsonKey(name: 'full_name') String fullName,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
       String? bio,
-      double rating});
+      double rating,
+      @JsonKey(name: 'profile_id') String? profileId,
+      @JsonKey(name: 'is_active') bool isActive});
 }
 
 /// @nodoc
@@ -142,6 +160,8 @@ class __$$StaffModelImplCopyWithImpl<$Res>
     Object? avatarUrl = freezed,
     Object? bio = freezed,
     Object? rating = null,
+    Object? profileId = freezed,
+    Object? isActive = null,
   }) {
     return _then(_$StaffModelImpl(
       id: null == id
@@ -168,6 +188,14 @@ class __$$StaffModelImplCopyWithImpl<$Res>
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
               as double,
+      profileId: freezed == profileId
+          ? _value.profileId
+          : profileId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isActive: null == isActive
+          ? _value.isActive
+          : isActive // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -181,7 +209,9 @@ class _$StaffModelImpl implements _StaffModel {
       @JsonKey(name: 'full_name') required this.fullName,
       @JsonKey(name: 'avatar_url') this.avatarUrl,
       this.bio,
-      this.rating = 0});
+      this.rating = 0,
+      @JsonKey(name: 'profile_id') this.profileId,
+      @JsonKey(name: 'is_active') this.isActive = true});
 
   factory _$StaffModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$StaffModelImplFromJson(json);
@@ -202,10 +232,16 @@ class _$StaffModelImpl implements _StaffModel {
   @override
   @JsonKey()
   final double rating;
+  @override
+  @JsonKey(name: 'profile_id')
+  final String? profileId;
+  @override
+  @JsonKey(name: 'is_active')
+  final bool isActive;
 
   @override
   String toString() {
-    return 'StaffModel(id: $id, shopId: $shopId, fullName: $fullName, avatarUrl: $avatarUrl, bio: $bio, rating: $rating)';
+    return 'StaffModel(id: $id, shopId: $shopId, fullName: $fullName, avatarUrl: $avatarUrl, bio: $bio, rating: $rating, profileId: $profileId, isActive: $isActive)';
   }
 
   @override
@@ -220,13 +256,17 @@ class _$StaffModelImpl implements _StaffModel {
             (identical(other.avatarUrl, avatarUrl) ||
                 other.avatarUrl == avatarUrl) &&
             (identical(other.bio, bio) || other.bio == bio) &&
-            (identical(other.rating, rating) || other.rating == rating));
+            (identical(other.rating, rating) || other.rating == rating) &&
+            (identical(other.profileId, profileId) ||
+                other.profileId == profileId) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, shopId, fullName, avatarUrl, bio, rating);
+  int get hashCode => Object.hash(runtimeType, id, shopId, fullName, avatarUrl,
+      bio, rating, profileId, isActive);
 
   /// Create a copy of StaffModel
   /// with the given fields replaced by the non-null parameter values.
@@ -251,7 +291,9 @@ abstract class _StaffModel implements StaffModel {
       @JsonKey(name: 'full_name') required final String fullName,
       @JsonKey(name: 'avatar_url') final String? avatarUrl,
       final String? bio,
-      final double rating}) = _$StaffModelImpl;
+      final double rating,
+      @JsonKey(name: 'profile_id') final String? profileId,
+      @JsonKey(name: 'is_active') final bool isActive}) = _$StaffModelImpl;
 
   factory _StaffModel.fromJson(Map<String, dynamic> json) =
       _$StaffModelImpl.fromJson;
@@ -271,6 +313,12 @@ abstract class _StaffModel implements StaffModel {
   String? get bio;
   @override
   double get rating;
+  @override
+  @JsonKey(name: 'profile_id')
+  String? get profileId;
+  @override
+  @JsonKey(name: 'is_active')
+  bool get isActive;
 
   /// Create a copy of StaffModel
   /// with the given fields replaced by the non-null parameter values.

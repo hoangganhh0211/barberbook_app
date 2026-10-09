@@ -9,6 +9,7 @@ abstract class ShopRepository {
   Future<Result<List<ShopModel>>> fetchShops({String? searchQuery});
 
   Future<Result<ShopModel>> fetchShopById(String shopId);
+  Future<Result<ShopModel?>> fetchMyOwnedShop();
 }
 
 class ShopRepositoryImpl implements ShopRepository {
@@ -32,6 +33,18 @@ class ShopRepositoryImpl implements ShopRepository {
   Future<Result<ShopModel>> fetchShopById(String shopId) async {
     try {
       final ShopModel shop = await _shopService.fetchShopById(shopId);
+      return Success(shop);
+    } on PostgrestException catch (e) {
+      return ResultFailure(mapSupabasePostgrestError(e));
+    } catch (_) {
+      return const ResultFailure(NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.'));
+    }
+  }
+
+  @override
+  Future<Result<ShopModel?>> fetchMyOwnedShop() async {
+    try {
+      final ShopModel? shop = await _shopService.fetchMyOwnedShop();
       return Success(shop);
     } on PostgrestException catch (e) {
       return ResultFailure(mapSupabasePostgrestError(e));

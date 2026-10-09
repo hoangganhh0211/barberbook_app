@@ -31,3 +31,13 @@ final shopDetailProvider = FutureProvider.family<ShopModel, String>((ref, shopId
       throw failure;
   }
 });
+
+final myOwnedShopProvider = FutureProvider<ShopModel?>((ref) async {
+  final result = await ref.watch(shopRepositoryProvider).fetchMyOwnedShop();
+  switch (result) {
+    case Success(:final data):
+      return data;
+    case ResultFailure(:final failure):
+      throw failure;
+  }
+});

@@ -14,6 +14,8 @@ _$StaffModelImpl _$$StaffModelImplFromJson(Map<String, dynamic> json) =>
       avatarUrl: json['avatar_url'] as String?,
       bio: json['bio'] as String?,
       rating: (json['rating'] as num?)?.toDouble() ?? 0,
+      profileId: json['profile_id'] as String?,
+      isActive: json['is_active'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$StaffModelImplToJson(_$StaffModelImpl instance) =>
@@ -24,4 +26,6 @@ Map<String, dynamic> _$$StaffModelImplToJson(_$StaffModelImpl instance) =>
       'avatar_url': instance.avatarUrl,
       'bio': instance.bio,
       'rating': instance.rating,
+      'profile_id': instance.profileId,
+      'is_active': instance.isActive,
     };
