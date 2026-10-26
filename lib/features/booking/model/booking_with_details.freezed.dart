@@ -31,10 +31,7 @@ mixin _$BookingWithDetails {
   BookingStatus get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_price')
   double get totalPrice =>
-      throw _privateConstructorUsedError; // Snapshot ten khach hang (trigger DB tu dien, xem
-// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
-// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
-// TRUOC khi chay migration nay.
+      throw _privateConstructorUsedError; 
   @JsonKey(name: 'customer_name')
   String get customerName => throw _privateConstructorUsedError;
   @JsonKey(name: 'shops')
@@ -285,10 +282,6 @@ class _$BookingWithDetailsImpl implements _BookingWithDetails {
   @override
   @JsonKey(name: 'total_price')
   final double totalPrice;
-// Snapshot ten khach hang (trigger DB tu dien, xem
-// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
-// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
-// TRUOC khi chay migration nay.
   @override
   @JsonKey(name: 'customer_name')
   final String customerName;
@@ -378,10 +371,7 @@ abstract class _BookingWithDetails implements BookingWithDetails {
   BookingStatus get status;
   @override
   @JsonKey(name: 'total_price')
-  double get totalPrice; // Snapshot ten khach hang (trigger DB tu dien, xem
-// schema_booking_customer_name.sql) - dung o man "Lich lam viec cua toi"
-// (Sprint 6) de Staff biet ai sap toi. Co the rong ('') voi booking tao
-// TRUOC khi chay migration nay.
+  double get totalPrice;
   @override
   @JsonKey(name: 'customer_name')
   String get customerName;

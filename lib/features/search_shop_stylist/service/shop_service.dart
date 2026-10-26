@@ -30,8 +30,13 @@ class ShopService {
     final String? userId = _client.auth.currentUser?.id;
     if (userId == null) return null;
 
-    final Map<String, dynamic>? row =
-        await _client.from('shops').select().eq('owner_id', userId).maybeSingle();
+    final Map<String, dynamic>? row = await _client
+        .from('shops')
+        .select()
+        .eq('owner_id', userId)
+        .order('created_at')
+        .limit(1)
+        .maybeSingle();
 
     if (row == null) return null;
     return ShopModel.fromJson(row);

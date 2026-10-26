@@ -11,6 +11,7 @@ import 'package:barberbook_app/core/widgets/app_logo.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -37,10 +38,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    final Failure? failure = await ref.read(authControllerProvider.notifier).loginWithPhonePassword(
-          phone: _phoneController.text.trim(),
-          password: _passwordController.text,
-        );
+    final Failure? failure =
+        await ref.read(authControllerProvider.notifier).loginWithPhonePassword(
+              phone: _phoneController.text.trim(),
+              password: _passwordController.text,
+            );
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
@@ -64,7 +66,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$feature sẽ có ở Sprint tiếp theo')));
+      ..showSnackBar(
+          SnackBar(content: Text('Tính năng đang phát triển')));
   }
 
   @override
@@ -78,7 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Center(child: AppLogo(iconBoxSize: 56, titleFontSize: 24)),
+                const Center(
+                    child: AppLogo(iconBoxSize: 56, titleFontSize: 24)),
                 const SizedBox(height: 12),
                 Text(
                   'Đăng nhập để tiếp tục đặt lịch cắt tóc',
@@ -86,7 +90,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 36),
-
                 Text('Số điện thoại', style: AppTextStyles.titleMedium),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -101,7 +104,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   validator: Validators.phone,
                 ),
                 const SizedBox(height: 20),
-
                 Text('Mật khẩu', style: AppTextStyles.titleMedium),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -115,42 +117,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   validator: Validators.password,
                 ),
-
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: _isSubmitting ? null : () => _showComingSoon('Quên mật khẩu'),
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => _showComingSoon('Quên mật khẩu'),
                     child: const Text('Quên mật khẩu?'),
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 AppPrimaryButton(
                   label: 'Đăng nhập',
                   isLoading: _isSubmitting,
                   onPressed: _handleLogin,
                 ),
                 const SizedBox(height: 28),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Chưa có tài khoản? ', style: AppTextStyles.bodySecondary),
+                    Text('Chưa có tài khoản? ',
+                        style: AppTextStyles.bodySecondary),
                     TextButton(
-                      onPressed: _isSubmitting ? null : () => context.push(RoutePaths.register),
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero),
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => context.push(RoutePaths.register),
+                      style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero, minimumSize: Size.zero),
                       child: const Text('Đăng ký ngay'),
                     ),
                   ],
                 ),
-
                 if (kDebugMode) ...[
                   const SizedBox(height: 40),
                 ],

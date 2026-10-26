@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:barberbook_app/core/enums/app_permission.dart';
 import 'package:barberbook_app/core/enums/user_role.dart';
+import 'package:barberbook_app/core/rbac/rbac_matrix.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 class RouterRefreshNotifier extends ChangeNotifier {
@@ -22,6 +24,7 @@ String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
     AuthUnauthenticated() => isOnPreAuthArea ? null : RoutePaths.login,
     AuthAuthenticated(:final session) => _redirectForAuthenticated(
         role: session.role,
+        location: location,
         isOnSplash: isOnSplash,
         isOnPreAuthArea: isOnPreAuthArea,
         isOnCustomerArea: isOnCustomerArea,
@@ -32,6 +35,7 @@ String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
 
 String? _redirectForAuthenticated({
   required UserRole role,
+  required String location,
   required bool isOnSplash,
   required bool isOnPreAuthArea,
   required bool isOnCustomerArea,
@@ -50,5 +54,15 @@ String? _redirectForAuthenticated({
     return homeForRole;
   }
 
-  return null; // khong can redirect
+  if (location == RoutePaths.partnerStaffEdit &&
+      !RbacMatrix.allows(role, AppPermission.staffUpdate)) {
+    return RoutePaths.partnerStaff;
+  }
+
+  if (location == RoutePaths.partnerLeaveApproval &&
+      !RbacMatrix.allows(role, AppPermission.leaveApprove)) {
+    return RoutePaths.partnerSchedule;
+  }
+
+  return null;
 }

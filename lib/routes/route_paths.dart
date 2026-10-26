@@ -18,6 +18,7 @@ abstract class RoutePaths {
   static const String partnerLeaveApproval = '/partner/leave-approval';
 
   static const String partnerStaff = '/partner/staff';
+  static const String partnerStaffEdit = '/partner/staff/edit';
   static const String partnerServices = '/partner/services';
   static const String partnerProfile = '/partner/profile';
   static const String partnerVouchers = '/partner/profile/vouchers';

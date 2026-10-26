@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:barberbook_app/core/enums/app_permission.dart';
+import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
+import 'package:barberbook_app/core/rbac/rbac_matrix.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/async_value_widget.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
-import 'package:barberbook_app/features/auth/model/user_session.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/staff_schedule/provider/staff_schedule_provider.dart';
@@ -45,17 +47,22 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
     final AsyncValue<String?> myStaffIdAsync = ref.watch(myStaffIdProvider);
 
     final AuthState authState = ref.watch(authControllerProvider);
-    final bool isShopAdmin = authState is AuthAuthenticated && authState.session.role.isShopAdmin;
+    final UserRole? role = authState is AuthAuthenticated ? authState.session.role : null;
+    final bool canRequestLeave =
+        role != null && RbacMatrix.allows(role, AppPermission.leaveRequest);
+    final bool canApproveLeave =
+        role != null && RbacMatrix.allows(role, AppPermission.leaveApprove);
 
     return Scaffold(
       appBar: BrandedAppBar(
         actions: [
-          IconButton(
-            icon: const Icon(Icons.event_busy_outlined),
-            tooltip: 'Xin nghỉ phép',
-            onPressed: () => context.push(RoutePaths.partnerLeaveRequests),
-          ),
-          if (isShopAdmin)
+          if (canRequestLeave)
+            IconButton(
+              icon: const Icon(Icons.event_busy_outlined),
+              tooltip: 'Xin nghỉ phép',
+              onPressed: () => context.push(RoutePaths.partnerLeaveRequests),
+            ),
+          if (canApproveLeave)
             IconButton(
               icon: const Icon(Icons.fact_check_outlined),
               tooltip: 'Duyệt đơn nghỉ',

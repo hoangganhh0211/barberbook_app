@@ -13,7 +13,7 @@ class ProfileScreen extends ConsumerWidget {
   void _showComingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$feature sẽ có ở Sprint tiếp theo')));
+      ..showSnackBar(SnackBar(content: Text('Tính năng đang phát triển.')));
   }
 
   Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {

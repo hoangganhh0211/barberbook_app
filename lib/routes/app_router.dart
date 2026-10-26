@@ -19,9 +19,13 @@ import 'package:barberbook_app/features/profile/screen/profile_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_detail_screen.dart';
 import 'package:barberbook_app/features/search_shop_stylist/screen/shop_list_screen.dart';
 import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
+import 'package:barberbook_app/features/staff_management/screen/edit_staff_screen.dart';
+import 'package:barberbook_app/features/staff_management/screen/staff_management_screen.dart';
 import 'package:barberbook_app/features/staff_schedule/screen/staff_schedule_screen.dart';
 import 'package:barberbook_app/routes/route_guard.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
+import 'package:barberbook_app/shared/models/staff_model.dart';
+import 'package:barberbook_app/features/profile/screen/partner_profile_screen.dart';
 final appRouterProvider = Provider<GoRouter>((ref) {
   final RouterRefreshNotifier refreshNotifier = RouterRefreshNotifier(ref);
 
@@ -71,6 +75,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.partnerLeaveApproval,
         builder: (context, state) => const LeaveApprovalScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.partnerStaffEdit,
+        builder: (context, state) => EditStaffScreen(staff: state.extra! as StaffModel),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -128,8 +136,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.partnerStaff,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Quản lý Nhân sự'),
+              builder: (context, state) => const StaffManagementScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [
@@ -142,8 +149,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.partnerProfile,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Cá nhân - Partner'),
+              builder: (context, state) => const PartnerProfileScreen(),
             ),
           ]),
         ],
