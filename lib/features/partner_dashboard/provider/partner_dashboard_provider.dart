@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
@@ -15,8 +18,43 @@ final partnerDashboardRepositoryProvider = Provider<PartnerDashboardRepository>(
   return PartnerDashboardRepositoryImpl(ref.watch(partnerDashboardServiceProvider));
 });
 
+final partnerBookingRealtimeProvider = StreamProvider.family<int, String>((ref, shopId) {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const Stream<int>.empty();
+
+  final client = ref.watch(supabaseClientProvider);
+  final controller = StreamController<int>();
+  var eventSequence = 0;
+  final channel = client
+      .channel('partner-bookings-$userId-$shopId')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'bookings',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'shop_id',
+          value: shopId,
+        ),
+        callback: (_) {
+          if (!controller.isClosed) {
+            controller.add(++eventSequence);
+          }
+        },
+      )
+      .subscribe();
+
+  ref.onDispose(() {
+    unawaited(client.removeChannel(channel).then<void>((_) {}));
+    unawaited(controller.close());
+  });
+
+  return controller.stream;
+});
+
 final partnerDashboardBookingsProvider =
     FutureProvider.family<List<BookingWithDetails>, String>((ref, shopId) async {
+  ref.watch(partnerBookingRealtimeProvider(shopId));
   final String? userId = ref.watch(authenticatedUserIdProvider);
   if (userId == null) return const <BookingWithDetails>[];
 

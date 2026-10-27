@@ -11,12 +11,19 @@ class PartnerDashboardService {
     final List<Map<String, dynamic>> rows = await _client
         .from('bookings')
         .select(
-          'id, shop_id, start_time, end_time, status, total_price, '
+          'id, shop_id, start_time, end_time, status, total_price, customer_name, '
           'shops(name, cover_image_url), services(name, duration_minutes)',
         )
         .eq('shop_id', shopId)
         .order('start_time');
 
     return rows.map(BookingWithDetails.fromJson).toList();
+  }
+
+  Future<void> confirmBooking(String bookingId) async {
+    await _client.rpc(
+      'confirm_booking',
+      params: <String, dynamic>{'p_booking_id': bookingId},
+    );
   }
 }

@@ -26,8 +26,8 @@ class BookingService {
           'shop_id': shopId,
           'service_id': serviceId,
           'staff_id': staffId,
-          'start_time': startTime.toIso8601String(),
-          'end_time': endTime.toIso8601String(),
+          'start_time': startTime.toUtc().toIso8601String(),
+          'end_time': endTime.toUtc().toIso8601String(),
           'total_price': totalPrice,
         })
         .select()

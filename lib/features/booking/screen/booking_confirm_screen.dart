@@ -26,9 +26,22 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
   bool _isSubmitting = false;
 
   Future<void> _handleConfirm(BookingDraft draft) async {
-    setState(() => _isSubmitting = true);
+    if (_isSubmitting) return;
 
     final DateTime startTime = draft.selectedDateTime!;
+    if (!startTime.isAfter(DateTime.now())) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Khung giờ này đã qua. Vui lòng chọn lại thời gian.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
     final DateTime endTime = startTime.add(Duration(minutes: draft.selectedService!.durationMinutes));
 
     final result = await ref.read(bookingRepositoryProvider).createBooking(
@@ -52,9 +65,12 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
-            const SnackBar(content: Text('Đặt lịch thành công!'), backgroundColor: AppColors.success),
+            const SnackBar(
+              content: Text('Đã gửi yêu cầu đặt lịch. Vui lòng chờ tiệm xác nhận.'),
+              backgroundColor: AppColors.success,
+            ),
           );
-        context.go(RoutePaths.customerHome);
+        context.go(RoutePaths.customerBookings);
       case ResultFailure(:final failure):
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()

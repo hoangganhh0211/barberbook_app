@@ -8,12 +8,28 @@ import 'package:barberbook_app/features/partner_dashboard/service/partner_dashbo
 
 abstract class PartnerDashboardRepository {
   Future<Result<List<BookingWithDetails>>> fetchShopBookings(String shopId);
+
+  Future<Failure?> confirmBooking(String bookingId);
 }
 
 class PartnerDashboardRepositoryImpl implements PartnerDashboardRepository {
   PartnerDashboardRepositoryImpl(this._service);
 
   final PartnerDashboardService _service;
+
+  @override
+  Future<Failure?> confirmBooking(String bookingId) async {
+    try {
+      await _service.confirmBooking(bookingId);
+      return null;
+    } on PostgrestException catch (e) {
+      return mapSupabasePostgrestError(e);
+    } catch (_) {
+      return const NetworkFailure(
+        'Không thể xác nhận lịch hẹn. Vui lòng kiểm tra kết nối và thử lại.',
+      );
+    }
+  }
 
   @override
   Future<Result<List<BookingWithDetails>>> fetchShopBookings(String shopId) async {

@@ -67,6 +67,59 @@ class _PartnerDashboardContent extends ConsumerWidget {
 
   final ShopModel shop;
 
+  Future<void> _handleConfirmBooking(
+    BuildContext context,
+    WidgetRef ref,
+    BookingWithDetails booking,
+  ) async {
+    final bool? shouldConfirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Xác nhận lịch hẹn'),
+        content: Text(
+          'Xác nhận lịch ${booking.service.name} của '
+          '${booking.customerName.isNotEmpty ? booking.customerName : 'khách hàng'} '
+          'vào ${Formatters.dateTime(booking.startTime.toLocal())}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Để sau'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+    if (shouldConfirm != true || !context.mounted) return;
+
+    final Failure? failure = await ref
+        .read(partnerDashboardRepositoryProvider)
+        .confirmBooking(booking.id);
+    if (!context.mounted) return;
+
+    if (failure != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
+        );
+      return;
+    }
+
+    ref.invalidate(partnerDashboardBookingsProvider(shop.id));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Đã xác nhận lịch hẹn. Khách hàng sẽ nhận được thông báo.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookingsAsync = ref.watch(partnerDashboardBookingsProvider(shop.id));
@@ -91,6 +144,7 @@ class _PartnerDashboardContent extends ConsumerWidget {
           shop: shop,
           bookings: bookings,
           staff: staff,
+          onConfirmBooking: (booking) => _handleConfirmBooking(context, ref, booking),
           onRefresh: () async {
             try {
               await ref.refresh(partnerDashboardBookingsProvider(shop.id).future);
@@ -111,12 +165,14 @@ class _DashboardBody extends StatelessWidget {
     required this.bookings,
     required this.staff,
     required this.onRefresh,
+    required this.onConfirmBooking,
   });
 
   final ShopModel shop;
   final List<BookingWithDetails> bookings;
   final List<StaffModel> staff;
   final Future<void> Function() onRefresh;
+  final Future<void> Function(BookingWithDetails booking) onConfirmBooking;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +208,20 @@ class _DashboardBody extends StatelessWidget {
             !booking.startTime.toLocal().isBefore(now))
         .toList()
       ..sort((a, b) => a.startTime.toLocal().compareTo(b.startTime.toLocal()));
-    final List<BookingWithDetails> visibleBookings = upcomingBookings.take(5).toList();
+    // Ưu tiên hiển thị mọi lịch đang chờ để chủ tiệm không bỏ lỡ nút xác nhận;
+    // phần còn lại lấy tối đa 5 lịch đã xác nhận gần nhất.
+    final List<BookingWithDetails> pendingUpcomingBookings = upcomingBookings
+        .where((booking) => booking.status == BookingStatus.pending)
+        .toList();
+    final List<BookingWithDetails> confirmedUpcomingBookings = upcomingBookings
+        .where((booking) => booking.status == BookingStatus.confirmed)
+        .toList();
+    final List<BookingWithDetails> visibleBookings = <BookingWithDetails>[
+      ...pendingUpcomingBookings,
+      ...confirmedUpcomingBookings.take(
+        pendingUpcomingBookings.length < 5 ? 5 - pendingUpcomingBookings.length : 0,
+      ),
+    ]..sort((a, b) => a.startTime.toLocal().compareTo(b.startTime.toLocal()));
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -206,7 +275,7 @@ class _DashboardBody extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text('Lịch hẹn sắp tới', style: AppTextStyles.heading2)),
-              Text('${visibleBookings.length}/5', style: AppTextStyles.caption),
+              Text('${visibleBookings.length} lịch', style: AppTextStyles.caption),
             ],
           ),
           const SizedBox(height: 12),
@@ -234,7 +303,12 @@ class _DashboardBody extends StatelessWidget {
             )
           else
             for (final booking in visibleBookings) ...[
-              _UpcomingBookingCard(booking: booking),
+              _UpcomingBookingCard(
+                booking: booking,
+                onConfirm: booking.status == BookingStatus.pending
+                    ? () => onConfirmBooking(booking)
+                    : null,
+              ),
               const SizedBox(height: 10),
             ],
         ],
@@ -378,9 +452,10 @@ class _KpiCard extends StatelessWidget {
 }
 
 class _UpcomingBookingCard extends StatelessWidget {
-  const _UpcomingBookingCard({required this.booking});
+  const _UpcomingBookingCard({required this.booking, this.onConfirm});
 
   final BookingWithDetails booking;
+  final VoidCallback? onConfirm;
 
   @override
   Widget build(BuildContext context) {
@@ -399,54 +474,78 @@ class _UpcomingBookingCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.content_cut_rounded, color: AppColors.primary, size: 21),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  booking.service.name,
-                  style: AppTextStyles.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceElevated,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${Formatters.date(startTime)} · ${Formatters.time(startTime)}',
-                  style: AppTextStyles.caption,
+                child: const Icon(Icons.content_cut_rounded, color: AppColors.primary, size: 21),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      booking.service.name,
+                      style: AppTextStyles.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    if (booking.customerName.isNotEmpty)
+                      Text(
+                        booking.customerName,
+                        style: AppTextStyles.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${Formatters.date(startTime)} · ${Formatters.time(startTime)}',
+                      style: AppTextStyles.caption,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${Formatters.duration(booking.service.durationMinutes)} · ${Formatters.currency(booking.totalPrice)}',
+                      style: AppTextStyles.bodySecondary,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${Formatters.duration(booking.service.durationMinutes)} · ${Formatters.currency(booking.totalPrice)}',
-                  style: AppTextStyles.bodySecondary,
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.14),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ],
-            ),
+                child: Text(
+                  booking.status.label,
+                  style: AppTextStyles.caption.copyWith(color: statusColor),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.14),
-              borderRadius: BorderRadius.circular(8),
+          if (onConfirm != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: onConfirm,
+                icon: const Icon(Icons.check_circle_outline, size: 18),
+                label: const Text('Xác nhận lịch'),
+              ),
             ),
-            child: Text(
-              booking.status.label,
-              style: AppTextStyles.caption.copyWith(color: statusColor),
-              textAlign: TextAlign.center,
-            ),
-          ),
+          ],
         ],
       ),
     );
