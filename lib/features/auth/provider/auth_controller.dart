@@ -29,6 +29,7 @@ final class AuthAuthenticated extends AuthState {
 }
 class AuthController extends Notifier<AuthState> {
   StreamSubscription<supa.AuthState>? _authSubscription;
+  int _authEventVersion = 0;
 
   @override
   AuthState build() {
@@ -40,22 +41,37 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> _handleAuthStateChange(supa.AuthState data) async {
+    final int eventVersion = ++_authEventVersion;
     final supa.Session? session = data.session;
     if (session == null) {
       state = const AuthUnauthenticated();
       return;
     }
 
-    final Result<UserSession> result = await ref.read(authRepositoryProvider).fetchUserSession(
-          session.user.id,
-        );
+    final AuthState currentState = state;
+    final String? currentUserId = currentState is AuthAuthenticated
+        ? currentState.session.userId
+        : null;
+    if (currentUserId != session.user.id) {
+      state = const AuthUnknown();
+    }
+
+    final Result<UserSession> result =
+        await ref.read(authRepositoryProvider).fetchUserSession(session.user.id);
+
+    if (eventVersion != _authEventVersion) return;
+    if (ref.read(authServiceProvider).currentSession?.user.id != session.user.id) {
+      return;
+    }
 
     switch (result) {
       case Success(:final data):
         state = AuthAuthenticated(data);
       case ResultFailure():
         await ref.read(authRepositoryProvider).logout();
-        state = const AuthUnauthenticated();
+        if (eventVersion == _authEventVersion) {
+          state = const AuthUnauthenticated();
+        }
     }
   }
   Future<Failure?> loginWithPhonePassword({
@@ -77,14 +93,23 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> signOut() async {
+    ++_authEventVersion;
+    state = const AuthUnauthenticated();
     await ref.read(authRepositoryProvider).logout();
   }
+
   Future<void> refreshSession() async {
     final AuthState current = state;
     if (current is! AuthAuthenticated) return;
 
+    final int eventVersion = _authEventVersion;
+    final String userId = current.session.userId;
     final Result<UserSession> result =
-        await ref.read(authRepositoryProvider).fetchUserSession(current.session.userId);
+        await ref.read(authRepositoryProvider).fetchUserSession(userId);
+
+    if (eventVersion != _authEventVersion) return;
+    final AuthState latest = state;
+    if (latest is! AuthAuthenticated || latest.session.userId != userId) return;
 
     switch (result) {
       case Success(:final data):
@@ -103,3 +128,10 @@ class AuthController extends Notifier<AuthState> {
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
+
+
+final authenticatedUserIdProvider = Provider<String?>((ref) {
+  final AuthState authState = ref.watch(authControllerProvider);
+  if (authState is AuthAuthenticated) return authState.session.userId;
+  return null;
+});

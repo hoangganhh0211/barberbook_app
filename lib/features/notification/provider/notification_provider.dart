@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/notification/model/notification_model.dart';
 import 'package:barberbook_app/features/notification/repository/notification_repository.dart';
 import 'package:barberbook_app/features/notification/service/notification_service.dart';
@@ -14,6 +15,9 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(ref.watch(notificationServiceProvider));
 });
 final notificationListProvider = FutureProvider<List<NotificationModel>>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const <NotificationModel>[];
+
   final result = await ref.watch(notificationRepositoryProvider).fetchMyNotifications();
   switch (result) {
     case Success(:final data):

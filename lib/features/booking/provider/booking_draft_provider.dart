@@ -1,11 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_draft.dart';
 import 'package:barberbook_app/shared/models/service_model.dart';
 import 'package:barberbook_app/shared/models/staff_model.dart';
+
 class BookingDraftController extends Notifier<BookingDraft?> {
   @override
-  BookingDraft? build() => null;
+  BookingDraft? build() {
+    ref.listen<String?>(authenticatedUserIdProvider, (previous, next) {
+      if (previous != next) state = null;
+    });
+    return null;
+  }
   void start(String shopId) {
     state = BookingDraft(shopId: shopId);
   }

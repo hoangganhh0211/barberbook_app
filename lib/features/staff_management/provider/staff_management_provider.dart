@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/staff_management/repository/staff_management_repository.dart';
 import 'package:barberbook_app/features/staff_management/service/staff_management_service.dart';
 import 'package:barberbook_app/shared/models/staff_model.dart';
@@ -15,6 +16,9 @@ final staffManagementRepositoryProvider = Provider<StaffManagementRepository>((r
 });
 
 final shopStaffListProvider = FutureProvider.family<List<StaffModel>, String>((ref, shopId) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const <StaffModel>[];
+
   final result = await ref.watch(staffManagementRepositoryProvider).fetchStaffByShop(shopId);
   switch (result) {
     case Success(:final data):

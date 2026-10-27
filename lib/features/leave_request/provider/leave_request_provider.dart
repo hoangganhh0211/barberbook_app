@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/leave_request/model/leave_request_model.dart';
 import 'package:barberbook_app/features/leave_request/repository/leave_request_repository.dart';
 import 'package:barberbook_app/features/leave_request/service/leave_request_service.dart';
@@ -16,6 +17,9 @@ final leaveRequestRepositoryProvider = Provider<LeaveRequestRepository>((ref) {
 
 
 final myLeaveRequestsProvider = FutureProvider<List<LeaveRequestModel>>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const <LeaveRequestModel>[];
+
   final result = await ref.watch(leaveRequestRepositoryProvider).fetchMyLeaveRequests();
   switch (result) {
     case Success(:final data):
@@ -27,6 +31,9 @@ final myLeaveRequestsProvider = FutureProvider<List<LeaveRequestModel>>((ref) as
 
 
 final allLeaveRequestsProvider = FutureProvider<List<LeaveRequestModel>>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const <LeaveRequestModel>[];
+
   final result = await ref.watch(leaveRequestRepositoryProvider).fetchAllLeaveRequests();
   switch (result) {
     case Success(:final data):

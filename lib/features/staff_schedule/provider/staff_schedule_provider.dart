@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/staff_schedule/repository/staff_schedule_repository.dart';
 import 'package:barberbook_app/features/staff_schedule/service/staff_schedule_service.dart';
@@ -15,6 +16,9 @@ final staffScheduleRepositoryProvider = Provider<StaffScheduleRepository>((ref) 
 });
 
 final myStaffIdProvider = FutureProvider<String?>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return null;
+
   final result = await ref.watch(staffScheduleRepositoryProvider).fetchMyStaffId();
   switch (result) {
     case Success(:final data):
@@ -25,6 +29,9 @@ final myStaffIdProvider = FutureProvider<String?>((ref) async {
 });
 
 final myStaffInfoProvider = FutureProvider<({String id, String shopId})?>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return null;
+
   final result = await ref.watch(staffScheduleRepositoryProvider).fetchMyStaffInfo();
   switch (result) {
     case Success(:final data):
@@ -51,6 +58,9 @@ class ScheduleRange {
 
 final myScheduleProvider = FutureProvider.family<List<BookingWithDetails>, ScheduleRange>(
   (ref, range) async {
+    final String? userId = ref.watch(authenticatedUserIdProvider);
+    if (userId == null) return const <BookingWithDetails>[];
+
     final result = await ref.watch(staffScheduleRepositoryProvider).fetchMySchedule(
           rangeStart: range.start,
           rangeEnd: range.end,

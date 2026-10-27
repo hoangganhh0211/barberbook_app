@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
+import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 import 'package:barberbook_app/features/booking/repository/booking_repository.dart';
 import 'package:barberbook_app/features/booking/service/booking_service.dart';
@@ -14,6 +15,9 @@ final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
   return BookingRepositoryImpl(ref.watch(bookingServiceProvider));
 });
 final myBookingsProvider = FutureProvider<List<BookingWithDetails>>((ref) async {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const <BookingWithDetails>[];
+
   final result = await ref.watch(bookingRepositoryProvider).fetchMyBookings();
   switch (result) {
     case Success(:final data):
