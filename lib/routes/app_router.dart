@@ -1,3 +1,4 @@
+import 'package:barberbook_app/features/partner_dashboard/screen/partner_dashboard_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -123,8 +124,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.partnerDashboard,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Dashboard - Partner'),
+              builder: (context, state) => const PartnerDashboardScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [
