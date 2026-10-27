@@ -6,6 +6,7 @@ import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/utils/formatters.dart';
+import 'package:barberbook_app/core/utils/vietnam_time.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/core/widgets/error_state_widget.dart';
@@ -79,7 +80,7 @@ class _PartnerDashboardContent extends ConsumerWidget {
         content: Text(
           'Xác nhận lịch ${booking.service.name} của '
           '${booking.customerName.isNotEmpty ? booking.customerName : 'khách hàng'} '
-          'vào ${Formatters.dateTime(booking.startTime.toLocal())}?',
+          'vào ${Formatters.dateTimeVietnam(booking.startTime)}?',
         ),
         actions: [
           TextButton(
@@ -233,44 +234,48 @@ class _DashboardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime now = DateTime.now();
-    final DateTime todayStart = DateTime(now.year, now.month, now.day);
-    final DateTime tomorrowStart = todayStart.add(const Duration(days: 1));
-    final DateTime monthStart = DateTime(now.year, now.month);
-    final DateTime nextMonthStart = now.month == 12
-        ? DateTime(now.year + 1)
-        : DateTime(now.year, now.month + 1);
+    // Keep appointment comparisons as absolute instants. Only the boundaries
+    // are derived from the shop's Vietnam calendar, not the device timezone.
+    final DateTime nowUtc = VietnamTime.nowUtc();
+    final DateTime nowVietnamWall = VietnamTime.toWall(nowUtc);
+    final DateTime todayStartUtc = VietnamTime.startOfDayUtc(nowVietnamWall);
+    final DateTime tomorrowStartUtc = todayStartUtc.add(const Duration(days: 1));
+    final DateTime monthStartUtc =
+        VietnamTime.startOfMonthUtc(nowVietnamWall.year, nowVietnamWall.month);
+    final DateTime nextMonthStartUtc = nowVietnamWall.month == 12
+        ? VietnamTime.startOfMonthUtc(nowVietnamWall.year + 1, 1)
+        : VietnamTime.startOfMonthUtc(nowVietnamWall.year, nowVietnamWall.month + 1);
 
     final int todayBookingCount = bookings.where((booking) {
-      final DateTime startTime = booking.startTime.toLocal();
-      return !startTime.isBefore(todayStart) &&
-          startTime.isBefore(tomorrowStart) &&
+      final DateTime startTime = booking.startTime.toUtc();
+      return !startTime.isBefore(todayStartUtc) &&
+          startTime.isBefore(tomorrowStartUtc) &&
           booking.status != BookingStatus.cancelled;
     }).length;
     final int pendingBookingCount =
         bookings.where((booking) => booking.status == BookingStatus.pending).length;
     final double monthlyRevenue = bookings
         .where((booking) {
-          final DateTime startTime = booking.startTime.toLocal();
+          final DateTime startTime = booking.startTime.toUtc();
           return booking.status == BookingStatus.completed &&
-              !startTime.isBefore(monthStart) &&
-              startTime.isBefore(nextMonthStart);
+              !startTime.isBefore(monthStartUtc) &&
+              startTime.isBefore(nextMonthStartUtc);
         })
         .fold<double>(0, (total, booking) => total + booking.totalPrice);
     final int activeStaffCount = staff.where((member) => member.isActive).length;
     final List<BookingWithDetails> bookingsToComplete = bookings
         .where((booking) =>
             booking.status == BookingStatus.confirmed &&
-            !booking.endTime.toLocal().isAfter(now))
+            !booking.endTime.toUtc().isAfter(nowUtc))
         .toList()
-      ..sort((a, b) => b.startTime.toLocal().compareTo(a.startTime.toLocal()));
+      ..sort((a, b) => b.startTime.toUtc().compareTo(a.startTime.toUtc()));
     final List<BookingWithDetails> upcomingBookings = bookings
         .where((booking) =>
             (booking.status == BookingStatus.pending ||
                 booking.status == BookingStatus.confirmed) &&
-            !booking.startTime.toLocal().isBefore(now))
+            !booking.startTime.toUtc().isBefore(nowUtc))
         .toList()
-      ..sort((a, b) => a.startTime.toLocal().compareTo(b.startTime.toLocal()));
+      ..sort((a, b) => a.startTime.toUtc().compareTo(b.startTime.toUtc()));
     // Ưu tiên hiển thị mọi lịch đang chờ để chủ tiệm không bỏ lỡ nút xác nhận;
     // phần còn lại lấy tối đa 5 lịch đã xác nhận gần nhất.
     final List<BookingWithDetails> pendingUpcomingBookings = upcomingBookings
@@ -284,7 +289,7 @@ class _DashboardBody extends StatelessWidget {
       ...confirmedUpcomingBookings.take(
         pendingUpcomingBookings.length < 5 ? 5 - pendingUpcomingBookings.length : 0,
       ),
-    ]..sort((a, b) => a.startTime.toLocal().compareTo(b.startTime.toLocal()));
+    ]..sort((a, b) => a.startTime.toUtc().compareTo(b.startTime.toUtc()));
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -294,7 +299,7 @@ class _DashboardBody extends StatelessWidget {
         children: [
           Text('Tổng quan', style: AppTextStyles.heading1),
           const SizedBox(height: 4),
-          Text(Formatters.date(now), style: AppTextStyles.bodySecondary),
+          Text(Formatters.dateVietnam(nowUtc), style: AppTextStyles.bodySecondary),
           const SizedBox(height: 16),
           _ShopSummaryCard(shop: shop),
           const SizedBox(height: 24),
@@ -546,7 +551,7 @@ class _UpcomingBookingCard extends StatelessWidget {
       BookingStatus.completed => AppColors.success,
       BookingStatus.cancelled => AppColors.error,
     };
-    final DateTime startTime = booking.startTime.toLocal();
+    final DateTime startTime = booking.startTime;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -590,7 +595,7 @@ class _UpcomingBookingCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 4),
                     Text(
-                      '${Formatters.date(startTime)} · ${Formatters.time(startTime)}',
+                      '${Formatters.dateVietnam(startTime)} · ${Formatters.timeVietnam(startTime)}',
                       style: AppTextStyles.caption,
                     ),
                     const SizedBox(height: 4),

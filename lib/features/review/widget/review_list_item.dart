@@ -33,7 +33,7 @@ class ReviewListItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(Formatters.date(review.createdAt), style: AppTextStyles.caption),
+              Text(Formatters.dateVietnam(review.createdAt), style: AppTextStyles.caption),
             ],
           ),
           const SizedBox(height: 4),

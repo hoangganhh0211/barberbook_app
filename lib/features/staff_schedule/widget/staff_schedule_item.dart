@@ -61,8 +61,8 @@ class _StaffScheduleItemState extends State<StaffScheduleItem> {
             children: [
               Column(
                 children: [
-                  Text(Formatters.time(booking.startTime.toLocal()), style: AppTextStyles.titleMedium),
-                  Text(Formatters.time(booking.endTime.toLocal()), style: AppTextStyles.caption),
+                  Text(Formatters.timeVietnam(booking.startTime), style: AppTextStyles.titleMedium),
+                  Text(Formatters.timeVietnam(booking.endTime), style: AppTextStyles.caption),
                 ],
               ),
               const SizedBox(width: 14),

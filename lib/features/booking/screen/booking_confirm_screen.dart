@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/utils/formatters.dart';
+import 'package:barberbook_app/core/utils/vietnam_time.dart';
 import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
@@ -29,7 +30,7 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
     if (_isSubmitting) return;
 
     final DateTime startTime = draft.selectedDateTime!;
-    if (!startTime.isAfter(DateTime.now())) {
+    if (!startTime.toUtc().isAfter(VietnamTime.nowUtc())) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -124,7 +125,7 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
               _SummaryRow(
                 icon: Icons.calendar_today_outlined,
                 label: 'Thời gian',
-                value: Formatters.dateTime(draft.selectedDateTime!),
+                value: Formatters.dateTimeVietnam(draft.selectedDateTime!),
               ),
               _SummaryRow(
                 icon: Icons.timer_outlined,

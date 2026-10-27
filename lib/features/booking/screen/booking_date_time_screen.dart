@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/utils/formatters.dart';
+import 'package:barberbook_app/core/utils/vietnam_time.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
@@ -31,17 +32,21 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
   @override
   void initState() {
     super.initState();
-    final DateTime now = DateTime.now();
-    _selectedDay = DateTime(now.year, now.month, now.day);
+    _selectedDay = VietnamTime.todayCalendarDate();
     _focusedDay = _selectedDay;
   }
 
   List<DateTime> _generateTimeSlots(DateTime day, int durationMinutes) {
-    final DateTime dayEnd = DateTime(day.year, day.month, day.day, _closeHour);
-    final DateTime now = DateTime.now();
+    // Store real instants in UTC, derived from the shop's Vietnam wall clock.
+    final DateTime dayEnd = VietnamTime.wallToUtc(
+      DateTime(day.year, day.month, day.day, _closeHour),
+    );
+    final DateTime now = VietnamTime.nowUtc();
 
     final List<DateTime> slots = [];
-    DateTime cursor = DateTime(day.year, day.month, day.day, _openHour);
+    DateTime cursor = VietnamTime.wallToUtc(
+      DateTime(day.year, day.month, day.day, _openHour),
+    );
     while (!cursor.add(Duration(minutes: durationMinutes)).isAfter(dayEnd)) {
       if (cursor.isAfter(now)) {
         slots.add(cursor);
@@ -63,6 +68,7 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
     }
 
     final BookingDraftController controller = ref.read(bookingDraftControllerProvider.notifier);
+    final DateTime today = VietnamTime.todayCalendarDate();
     final List<DateTime> slots = _generateTimeSlots(_selectedDay, draft.selectedService!.durationMinutes);
 
     return Scaffold(
@@ -70,8 +76,8 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
       body: Column(
         children: [
           TableCalendar(
-            firstDay: DateTime.now(),
-            lastDay: DateTime.now().add(const Duration(days: 30)),
+            firstDay: today,
+            lastDay: VietnamTime.calendarDateAfter(today, 30),
             focusedDay: _focusedDay,
             locale: 'vi_VN',
             calendarFormat: CalendarFormat.week,
@@ -144,7 +150,7 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
                             ),
                           ),
                           child: Text(
-                            Formatters.time(slot),
+                            Formatters.timeVietnam(slot),
                             style: AppTextStyles.bodyRegular.copyWith(
                               color: isSelected ? AppColors.onPrimary : AppColors.textPrimary,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,

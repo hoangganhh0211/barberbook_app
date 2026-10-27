@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:barberbook_app/core/utils/vietnam_time.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
 
 class StaffScheduleService {
@@ -53,8 +54,8 @@ class StaffScheduleService {
         .select('id, shop_id, start_time, end_time, status, total_price, customer_name, '
             'shops(name, cover_image_url), services(name, duration_minutes)')
         .eq('staff_id', staffId)
-        .gte('start_time', rangeStart.toIso8601String())
-        .lte('start_time', rangeEnd.toIso8601String())
+        .gte('start_time', VietnamTime.wallToUtc(rangeStart).toIso8601String())
+        .lt('start_time', VietnamTime.wallToUtc(rangeEnd).toIso8601String())
         .order('start_time');
 
     return rows.map(BookingWithDetails.fromJson).toList();

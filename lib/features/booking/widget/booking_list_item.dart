@@ -59,7 +59,7 @@ class BookingListItem extends StatelessWidget {
             children: [
               const Icon(Icons.calendar_today_outlined, size: 15, color: AppColors.textSecondary),
               const SizedBox(width: 6),
-              Text(Formatters.dateTime(booking.startTime), style: AppTextStyles.bodySecondary),
+              Text(Formatters.dateTimeVietnam(booking.startTime), style: AppTextStyles.bodySecondary),
             ],
           ),
           const SizedBox(height: 6),

@@ -9,6 +9,7 @@ import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/rbac/rbac_matrix.dart';
 import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
+import 'package:barberbook_app/core/utils/vietnam_time.dart';
 import 'package:barberbook_app/core/widgets/async_value_widget.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
@@ -32,17 +33,21 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _weekStart = _startOfWeek(DateTime.now());
+    _weekStart = _startOfWeek(VietnamTime.todayCalendarDate());
   }
 
   DateTime _startOfWeek(DateTime date) {
     final DateTime dayOnly = DateTime(date.year, date.month, date.day);
-    return dayOnly.subtract(Duration(days: dayOnly.weekday - 1));
+    return DateTime(dayOnly.year, dayOnly.month, dayOnly.day - (dayOnly.weekday - 1));
   }
 
-  void _goToPreviousWeek() => setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
+  void _goToPreviousWeek() => setState(() {
+        _weekStart = VietnamTime.calendarDateAfter(_weekStart, -7);
+      });
 
-  void _goToNextWeek() => setState(() => _weekStart = _weekStart.add(const Duration(days: 7)));
+  void _goToNextWeek() => setState(() {
+        _weekStart = VietnamTime.calendarDateAfter(_weekStart, 7);
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +122,8 @@ class _ScheduleList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DateTime weekEnd =
-        weekStart.add(const Duration(days: 7)).subtract(const Duration(seconds: 1));
+    // End is exclusive: next Monday 00:00 Vietnam time.
+    final DateTime weekEnd = VietnamTime.calendarDateAfter(weekStart, 7);
     final ScheduleRange range = ScheduleRange(start: weekStart, end: weekEnd);
     final AsyncValue<List<BookingWithDetails>> scheduleAsync = ref.watch(myScheduleProvider(range));
 
