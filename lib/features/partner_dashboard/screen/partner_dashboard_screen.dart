@@ -120,6 +120,60 @@ class _PartnerDashboardContent extends ConsumerWidget {
       );
   }
 
+  Future<void> _handleCompleteBooking(
+    BuildContext context,
+    WidgetRef ref,
+    BookingWithDetails booking,
+  ) async {
+    final bool? shouldComplete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Xác nhận hoàn thành dịch vụ'),
+        content: Text(
+          'Đánh dấu dịch vụ ${booking.service.name} của '
+          '${booking.customerName.isNotEmpty ? booking.customerName : 'khách hàng'} '
+          'là đã hoàn thành? Khách hàng sẽ nhận được thông báo và có thể đánh giá.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Để sau'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            icon: const Icon(Icons.task_alt_rounded),
+            label: const Text('Hoàn thành'),
+          ),
+        ],
+      ),
+    );
+    if (shouldComplete != true || !context.mounted) return;
+
+    final Failure? failure = await ref
+        .read(partnerDashboardRepositoryProvider)
+        .completeBooking(booking.id);
+    if (!context.mounted) return;
+
+    if (failure != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
+        );
+      return;
+    }
+
+    ref.invalidate(partnerDashboardBookingsProvider(shop.id));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Đã cập nhật lịch hẹn sang Hoàn tất.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookingsAsync = ref.watch(partnerDashboardBookingsProvider(shop.id));
@@ -145,6 +199,7 @@ class _PartnerDashboardContent extends ConsumerWidget {
           bookings: bookings,
           staff: staff,
           onConfirmBooking: (booking) => _handleConfirmBooking(context, ref, booking),
+          onCompleteBooking: (booking) => _handleCompleteBooking(context, ref, booking),
           onRefresh: () async {
             try {
               await ref.refresh(partnerDashboardBookingsProvider(shop.id).future);
@@ -166,6 +221,7 @@ class _DashboardBody extends StatelessWidget {
     required this.staff,
     required this.onRefresh,
     required this.onConfirmBooking,
+    required this.onCompleteBooking,
   });
 
   final ShopModel shop;
@@ -173,6 +229,7 @@ class _DashboardBody extends StatelessWidget {
   final List<StaffModel> staff;
   final Future<void> Function() onRefresh;
   final Future<void> Function(BookingWithDetails booking) onConfirmBooking;
+  final Future<void> Function(BookingWithDetails booking) onCompleteBooking;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +258,12 @@ class _DashboardBody extends StatelessWidget {
         })
         .fold<double>(0, (total, booking) => total + booking.totalPrice);
     final int activeStaffCount = staff.where((member) => member.isActive).length;
+    final List<BookingWithDetails> bookingsToComplete = bookings
+        .where((booking) =>
+            booking.status == BookingStatus.confirmed &&
+            !booking.endTime.toLocal().isAfter(now))
+        .toList()
+      ..sort((a, b) => b.startTime.toLocal().compareTo(a.startTime.toLocal()));
     final List<BookingWithDetails> upcomingBookings = bookings
         .where((booking) =>
             (booking.status == BookingStatus.pending ||
@@ -271,6 +334,23 @@ class _DashboardBody extends StatelessWidget {
               ),
             ],
           ),
+          if (bookingsToComplete.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(child: Text('Lịch cần hoàn tất', style: AppTextStyles.heading2)),
+                Text('${bookingsToComplete.length} lịch', style: AppTextStyles.caption),
+              ],
+            ),
+            const SizedBox(height: 12),
+            for (final booking in bookingsToComplete) ...[
+              _UpcomingBookingCard(
+                booking: booking,
+                onComplete: () => onCompleteBooking(booking),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ],
           const SizedBox(height: 24),
           Row(
             children: [
@@ -452,10 +532,11 @@ class _KpiCard extends StatelessWidget {
 }
 
 class _UpcomingBookingCard extends StatelessWidget {
-  const _UpcomingBookingCard({required this.booking, this.onConfirm});
+  const _UpcomingBookingCard({required this.booking, this.onConfirm, this.onComplete});
 
   final BookingWithDetails booking;
   final VoidCallback? onConfirm;
+  final VoidCallback? onComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -535,15 +616,21 @@ class _UpcomingBookingCard extends StatelessWidget {
               ),
             ],
           ),
-          if (onConfirm != null) ...[
+          if (onConfirm != null || onComplete != null) ...[
             const SizedBox(height: 10),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: onConfirm,
-                icon: const Icon(Icons.check_circle_outline, size: 18),
-                label: const Text('Xác nhận lịch'),
-              ),
+              child: onComplete != null
+                  ? FilledButton.icon(
+                      onPressed: onComplete,
+                      icon: const Icon(Icons.task_alt_rounded, size: 18),
+                      label: const Text('Hoàn thành dịch vụ'),
+                    )
+                  : FilledButton.icon(
+                      onPressed: onConfirm,
+                      icon: const Icon(Icons.check_circle_outline, size: 18),
+                      label: const Text('Xác nhận lịch'),
+                    ),
             ),
           ],
         ],

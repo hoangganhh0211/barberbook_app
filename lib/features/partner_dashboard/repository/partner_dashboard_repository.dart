@@ -10,6 +10,8 @@ abstract class PartnerDashboardRepository {
   Future<Result<List<BookingWithDetails>>> fetchShopBookings(String shopId);
 
   Future<Failure?> confirmBooking(String bookingId);
+
+  Future<Failure?> completeBooking(String bookingId);
 }
 
 class PartnerDashboardRepositoryImpl implements PartnerDashboardRepository {
@@ -27,6 +29,20 @@ class PartnerDashboardRepositoryImpl implements PartnerDashboardRepository {
     } catch (_) {
       return const NetworkFailure(
         'Không thể xác nhận lịch hẹn. Vui lòng kiểm tra kết nối và thử lại.',
+      );
+    }
+  }
+
+  @override
+  Future<Failure?> completeBooking(String bookingId) async {
+    try {
+      await _service.completeBooking(bookingId);
+      return null;
+    } on PostgrestException catch (e) {
+      return mapSupabasePostgrestError(e);
+    } catch (_) {
+      return const NetworkFailure(
+        'Không thể xác nhận hoàn thành dịch vụ. Vui lòng kiểm tra kết nối và thử lại.',
       );
     }
   }

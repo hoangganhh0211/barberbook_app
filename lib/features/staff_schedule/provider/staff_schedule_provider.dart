@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
@@ -26,6 +29,39 @@ final myStaffIdProvider = FutureProvider<String?>((ref) async {
     case ResultFailure(:final failure):
       throw failure;
   }
+});
+
+final staffBookingRealtimeProvider = StreamProvider<int>((ref) {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  final String? staffId = ref.watch(myStaffIdProvider).valueOrNull;
+  if (userId == null || staffId == null) return const Stream<int>.empty();
+
+  final client = ref.watch(supabaseClientProvider);
+  final controller = StreamController<int>();
+  var eventSequence = 0;
+  final channel = client
+      .channel('staff-bookings-$userId-$staffId')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'bookings',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'staff_id',
+          value: staffId,
+        ),
+        callback: (_) {
+          if (!controller.isClosed) controller.add(++eventSequence);
+        },
+      )
+      .subscribe();
+
+  ref.onDispose(() {
+    unawaited(client.removeChannel(channel).then<void>((_) {}));
+    unawaited(controller.close());
+  });
+
+  return controller.stream;
 });
 
 final myStaffInfoProvider = FutureProvider<({String id, String shopId})?>((ref) async {
@@ -60,6 +96,8 @@ final myScheduleProvider = FutureProvider.family<List<BookingWithDetails>, Sched
   (ref, range) async {
     final String? userId = ref.watch(authenticatedUserIdProvider);
     if (userId == null) return const <BookingWithDetails>[];
+
+    ref.watch(staffBookingRealtimeProvider);
 
     final result = await ref.watch(staffScheduleRepositoryProvider).fetchMySchedule(
           rangeStart: range.start,

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:barberbook_app/core/enums/app_permission.dart';
+import 'package:barberbook_app/core/enums/booking_status.dart';
 import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/error/failure.dart';
 import 'package:barberbook_app/core/rbac/rbac_matrix.dart';
+import 'package:barberbook_app/core/theme/app_colors.dart';
 import 'package:barberbook_app/core/theme/app_text_styles.dart';
 import 'package:barberbook_app/core/widgets/async_value_widget.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
@@ -120,6 +122,54 @@ class _ScheduleList extends ConsumerWidget {
     final ScheduleRange range = ScheduleRange(start: weekStart, end: weekEnd);
     final AsyncValue<List<BookingWithDetails>> scheduleAsync = ref.watch(myScheduleProvider(range));
 
+    Future<void> handleCompleteBooking(BookingWithDetails booking) async {
+      final bool? shouldComplete = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Xác nhận hoàn thành dịch vụ'),
+          content: Text(
+            'Bạn xác nhận đã thực hiện xong dịch vụ ${booking.service.name} cho '
+            '${booking.customerName.isEmpty ? 'khách hàng' : booking.customerName}? '
+            'Khách hàng sẽ được thông báo và có thể đánh giá dịch vụ.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Chưa hoàn thành'),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              icon: const Icon(Icons.task_alt_rounded),
+              label: const Text('Xác nhận hoàn thành'),
+            ),
+          ],
+        ),
+      );
+      if (shouldComplete != true || !context.mounted) return;
+
+      final failure = await ref.read(staffScheduleRepositoryProvider).completeBooking(booking.id);
+      if (!context.mounted) return;
+
+      if (failure != null) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
+          );
+        return;
+      }
+
+      ref.invalidate(myScheduleProvider(range));
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Đã xác nhận hoàn thành dịch vụ.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+    }
+
     return AsyncValueWidget<List<BookingWithDetails>>(
       value: scheduleAsync,
       skeletonItemCount: 3,
@@ -130,7 +180,15 @@ class _ScheduleList extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         itemCount: schedule.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) => StaffScheduleItem(booking: schedule[index]),
+        itemBuilder: (context, index) {
+          final booking = schedule[index];
+          return StaffScheduleItem(
+            booking: booking,
+            onComplete: booking.status == BookingStatus.confirmed
+                ? handleCompleteBooking
+                : null,
+          );
+        },
       ),
     );
   }

@@ -26,4 +26,11 @@ class PartnerDashboardService {
       params: <String, dynamic>{'p_booking_id': bookingId},
     );
   }
+
+  Future<void> completeBooking(String bookingId) async {
+    await _client.rpc(
+      'complete_booking',
+      params: <String, dynamic>{'p_booking_id': bookingId},
+    );
+  }
 }

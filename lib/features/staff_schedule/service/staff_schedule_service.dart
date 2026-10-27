@@ -34,6 +34,13 @@ class StaffScheduleService {
     return (id: row['id'] as String, shopId: row['shop_id'] as String);
   }
 
+  Future<void> completeBooking(String bookingId) async {
+    await _client.rpc(
+      'complete_booking',
+      params: <String, dynamic>{'p_booking_id': bookingId},
+    );
+  }
+
   Future<List<BookingWithDetails>> fetchMySchedule({
     required DateTime rangeStart,
     required DateTime rangeEnd,

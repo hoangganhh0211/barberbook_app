@@ -11,6 +11,8 @@ abstract class StaffScheduleRepository {
 
   Future<Result<({String id, String shopId})?>> fetchMyStaffInfo();
 
+  Future<Failure?> completeBooking(String bookingId);
+
   Future<Result<List<BookingWithDetails>>> fetchMySchedule({
     required DateTime rangeStart,
     required DateTime rangeEnd,
@@ -43,6 +45,20 @@ class StaffScheduleRepositoryImpl implements StaffScheduleRepository {
       return ResultFailure(mapSupabasePostgrestError(e));
     } catch (_) {
       return const ResultFailure(NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.'));
+    }
+  }
+
+  @override
+  Future<Failure?> completeBooking(String bookingId) async {
+    try {
+      await _service.completeBooking(bookingId);
+      return null;
+    } on PostgrestException catch (e) {
+      return mapSupabasePostgrestError(e);
+    } catch (_) {
+      return const NetworkFailure(
+        'Không thể xác nhận hoàn thành dịch vụ. Vui lòng kiểm tra kết nối và thử lại.',
+      );
     }
   }
 
