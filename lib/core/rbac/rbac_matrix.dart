@@ -13,15 +13,6 @@ abstract class RbacMatrix {
       AppPermission.leaveRequest,
       AppPermission.leaveApprove,
     },
-    UserRole.manager: {
-      AppPermission.scheduleView,
-      AppPermission.leaveRequest,
-      AppPermission.leaveApprove,
-    },
-    UserRole.receptionist: {
-      AppPermission.scheduleView,
-      AppPermission.leaveRequest,
-    },
     UserRole.staff: {
       AppPermission.scheduleView,
       AppPermission.leaveRequest,

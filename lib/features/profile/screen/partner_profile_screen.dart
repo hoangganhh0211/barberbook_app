@@ -151,8 +151,6 @@ class _RoleChip extends StatelessWidget {
   String get _label {
     return switch (role) {
       UserRole.owner => 'Chủ tiệm',
-      UserRole.manager => 'Quản lý',
-      UserRole.receptionist => 'Lễ tân',
       UserRole.staff => 'Thợ',
       UserRole.customer => 'Khách',
     };
