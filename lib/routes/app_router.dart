@@ -2,7 +2,6 @@ import 'package:barberbook_app/features/partner_dashboard/screen/partner_dashboa
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:barberbook_app/core/widgets/placeholder_screen.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/auth/screen/login_screen.dart';
 import 'package:barberbook_app/features/auth/screen/register_screen.dart';
@@ -23,6 +22,7 @@ import 'package:barberbook_app/features/splash/screen/splash_screen.dart';
 import 'package:barberbook_app/features/staff_management/screen/edit_staff_screen.dart';
 import 'package:barberbook_app/features/staff_management/screen/staff_management_screen.dart';
 import 'package:barberbook_app/features/staff_schedule/screen/staff_schedule_screen.dart';
+import 'package:barberbook_app/features/service_management/screen/service_management_screen.dart';
 import 'package:barberbook_app/routes/route_guard.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
 import 'package:barberbook_app/shared/models/staff_model.dart';
@@ -142,8 +142,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: RoutePaths.partnerServices,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Cấu hình Dịch vụ / Combo'),
+              builder: (context, state) => const ServiceManagementScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

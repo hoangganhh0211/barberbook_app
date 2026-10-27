@@ -7,11 +7,13 @@ import 'package:barberbook_app/core/enums/user_role.dart';
 import 'package:barberbook_app/core/rbac/rbac_matrix.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
+
 class RouterRefreshNotifier extends ChangeNotifier {
   RouterRefreshNotifier(Ref ref) {
     ref.listen<AuthState>(authControllerProvider, (_, __) => notifyListeners());
   }
 }
+
 String? routeGuardRedirect(AuthState authState, GoRouterState routerState) {
   final String location = routerState.matchedLocation;
   final bool isOnSplash = location == RoutePaths.splash;
@@ -41,22 +43,37 @@ String? _redirectForAuthenticated({
   required bool isOnCustomerArea,
   required bool isOnPartnerArea,
 }) {
-  final String homeForRole =
-      role.isCustomer ? RoutePaths.customerHome : RoutePaths.partnerDashboard;
+  final String homeForRole = role.isCustomer ? RoutePaths.customerHome : _firstPartnerLocation(role);
 
-  if (isOnSplash || isOnPreAuthArea) {
-    return homeForRole;
-  }
+  if (isOnSplash || isOnPreAuthArea) return homeForRole;
 
   final bool wrongAreaForCustomer = role.isCustomer && isOnPartnerArea;
   final bool wrongAreaForPartner = role.isPartner && isOnCustomerArea;
-  if (wrongAreaForCustomer || wrongAreaForPartner) {
-    return homeForRole;
+  if (wrongAreaForCustomer || wrongAreaForPartner) return homeForRole;
+
+  if (location == RoutePaths.partnerDashboard &&
+      !RbacMatrix.allows(role, AppPermission.dashboardView)) {
+    return _firstPartnerLocation(role);
+  }
+
+  if (location == RoutePaths.partnerSchedule &&
+      !RbacMatrix.allows(role, AppPermission.scheduleView)) {
+    return RoutePaths.partnerProfile;
+  }
+
+  if ((location == RoutePaths.partnerStaff || location == RoutePaths.partnerStaffEdit) &&
+      !RbacMatrix.allows(role, AppPermission.staffView)) {
+    return _firstPartnerLocation(role);
   }
 
   if (location == RoutePaths.partnerStaffEdit &&
       !RbacMatrix.allows(role, AppPermission.staffUpdate)) {
     return RoutePaths.partnerStaff;
+  }
+
+  if (location == RoutePaths.partnerServices &&
+      !RbacMatrix.allows(role, AppPermission.serviceView)) {
+    return _firstPartnerLocation(role);
   }
 
   if (location == RoutePaths.partnerLeaveApproval &&
@@ -65,4 +82,10 @@ String? _redirectForAuthenticated({
   }
 
   return null;
+}
+
+String _firstPartnerLocation(UserRole role) {
+  if (RbacMatrix.allows(role, AppPermission.dashboardView)) return RoutePaths.partnerDashboard;
+  if (RbacMatrix.allows(role, AppPermission.scheduleView)) return RoutePaths.partnerSchedule;
+  return RoutePaths.partnerProfile;
 }

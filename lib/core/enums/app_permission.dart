@@ -1,4 +1,5 @@
 enum AppPermission {
+  dashboardView,
   staffView,
   staffCreate,
   staffUpdate,
@@ -7,4 +8,8 @@ enum AppPermission {
   scheduleView,
   leaveRequest,
   leaveApprove,
+  serviceView,
+  serviceCreate,
+  serviceUpdate,
+  serviceToggleActive,
 }

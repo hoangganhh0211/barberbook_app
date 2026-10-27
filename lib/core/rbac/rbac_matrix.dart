@@ -4,6 +4,7 @@ import 'package:barberbook_app/core/enums/user_role.dart';
 abstract class RbacMatrix {
   static const Map<UserRole, Set<AppPermission>> _grants = {
     UserRole.owner: {
+      AppPermission.dashboardView,
       AppPermission.staffView,
       AppPermission.staffCreate,
       AppPermission.staffUpdate,
@@ -12,6 +13,10 @@ abstract class RbacMatrix {
       AppPermission.scheduleView,
       AppPermission.leaveRequest,
       AppPermission.leaveApprove,
+      AppPermission.serviceView,
+      AppPermission.serviceCreate,
+      AppPermission.serviceUpdate,
+      AppPermission.serviceToggleActive,
     },
     UserRole.staff: {
       AppPermission.scheduleView,

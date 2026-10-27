@@ -30,8 +30,7 @@ mixin _$BookingWithDetails {
   @JsonKey(fromJson: _statusFromJson, toJson: _statusToJson)
   BookingStatus get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_price')
-  double get totalPrice =>
-      throw _privateConstructorUsedError; 
+  double get totalPrice => throw _privateConstructorUsedError;
   @JsonKey(name: 'customer_name')
   String get customerName => throw _privateConstructorUsedError;
   @JsonKey(name: 'shops')
