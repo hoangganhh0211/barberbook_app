@@ -22,7 +22,9 @@ class LeaveRequestScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Bạn chưa được gán làm Thợ, không thể tạo đơn xin nghỉ.')),
+          const SnackBar(
+              content: Text(
+                  'Bạn chưa được gán làm Thợ, không thể tạo đơn xin nghỉ.')),
         );
       return;
     }
@@ -32,10 +34,12 @@ class LeaveRequestScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<LeaveRequestModel>> requestsAsync = ref.watch(myLeaveRequestsProvider);
+    final AsyncValue<List<LeaveRequestModel>> requestsAsync =
+        ref.watch(myLeaveRequestsProvider);
 
     return Scaffold(
-      appBar: const BrandedAppBar(variant: BrandedAppBarVariant.titleOnly, showBackButton: true),
+      appBar: const BrandedAppBar(
+          variant: BrandedAppBarVariant.titleOnly, showBackButton: true),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _handleCreatePressed(context, ref),
         icon: const Icon(Icons.add),
@@ -52,7 +56,8 @@ class LeaveRequestScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
           itemCount: requests.length,
           separatorBuilder: (_, __) => const SizedBox(height: 10),
-          itemBuilder: (context, index) => LeaveRequestListItem(request: requests[index]),
+          itemBuilder: (context, index) =>
+              LeaveRequestListItem(request: requests[index]),
         ),
       ),
     );

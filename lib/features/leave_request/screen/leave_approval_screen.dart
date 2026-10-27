@@ -11,9 +11,11 @@ import 'package:barberbook_app/features/leave_request/model/leave_request_model.
 import 'package:barberbook_app/features/leave_request/provider/leave_request_provider.dart';
 import 'package:barberbook_app/features/leave_request/widget/leave_request_list_item.dart';
 
-
 class LeaveApprovalScreen extends ConsumerWidget {
-  const LeaveApprovalScreen({super.key});
+  const LeaveApprovalScreen({super.key, this.showBackButton = true});
+
+  /// Hide the back button when this screen is embedded as a partner tab.
+  final bool showBackButton;
 
   Future<void> _handleReview(
     BuildContext context,
@@ -38,7 +40,8 @@ class LeaveApprovalScreen extends ConsumerWidget {
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(
               approve ? 'Duyệt' : 'Từ chối',
-              style: TextStyle(color: approve ? AppColors.success : AppColors.error),
+              style: TextStyle(
+                  color: approve ? AppColors.success : AppColors.error),
             ),
           ),
         ],
@@ -47,10 +50,11 @@ class LeaveApprovalScreen extends ConsumerWidget {
 
     if (confirmed != true) return;
 
-    final failure = await ref.read(leaveRequestRepositoryProvider).reviewLeaveRequest(
-          requestId: request.id,
-          approve: approve,
-        );
+    final failure =
+        await ref.read(leaveRequestRepositoryProvider).reviewLeaveRequest(
+              requestId: request.id,
+              approve: approve,
+            );
 
     if (!context.mounted) return;
 
@@ -58,20 +62,27 @@ class LeaveApprovalScreen extends ConsumerWidget {
       ref.invalidate(allLeaveRequestsProvider);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(approve ? 'Đã duyệt đơn nghỉ' : 'Đã từ chối đơn nghỉ')));
+        ..showSnackBar(SnackBar(
+            content:
+                Text(approve ? 'Đã duyệt đơn nghỉ' : 'Đã từ chối đơn nghỉ')));
     } else {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(failure.message), backgroundColor: AppColors.error));
+        ..showSnackBar(SnackBar(
+            content: Text(failure.message), backgroundColor: AppColors.error));
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<LeaveRequestModel>> requestsAsync = ref.watch(allLeaveRequestsProvider);
+    final AsyncValue<List<LeaveRequestModel>> requestsAsync =
+        ref.watch(allLeaveRequestsProvider);
 
     return Scaffold(
-      appBar: const BrandedAppBar(variant: BrandedAppBarVariant.titleOnly, showBackButton: true),
+      appBar: BrandedAppBar(
+        variant: BrandedAppBarVariant.titleOnly,
+        showBackButton: showBackButton,
+      ),
       body: AsyncValueWidget<List<LeaveRequestModel>>(
         value: requestsAsync,
         skeletonItemCount: 4,
@@ -79,16 +90,19 @@ class LeaveApprovalScreen extends ConsumerWidget {
         emptyTitle: 'Chưa có đơn xin nghỉ nào',
         onRetry: () => ref.invalidate(allLeaveRequestsProvider),
         dataBuilder: (requests) {
-          final List<LeaveRequestModel> pending =
-              requests.where((r) => r.status == LeaveRequestStatus.pending).toList();
-          final List<LeaveRequestModel> reviewed =
-              requests.where((r) => r.status != LeaveRequestStatus.pending).toList();
+          final List<LeaveRequestModel> pending = requests
+              .where((r) => r.status == LeaveRequestStatus.pending)
+              .toList();
+          final List<LeaveRequestModel> reviewed = requests
+              .where((r) => r.status != LeaveRequestStatus.pending)
+              .toList();
 
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               if (pending.isNotEmpty) ...[
-                Text('Chờ duyệt (${pending.length})', style: AppTextStyles.titleMedium),
+                Text('Chờ duyệt (${pending.length})',
+                    style: AppTextStyles.titleMedium),
                 const SizedBox(height: 10),
                 for (final request in pending) ...[
                   LeaveRequestListItem(
@@ -98,7 +112,9 @@ class LeaveApprovalScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => _handleReview(context, ref, request, approve: false),
+                            onPressed: () => _handleReview(
+                                context, ref, request,
+                                approve: false),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.error,
                               side: const BorderSide(color: AppColors.error),
@@ -109,7 +125,9 @@ class LeaveApprovalScreen extends ConsumerWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () => _handleReview(context, ref, request, approve: true),
+                            onPressed: () => _handleReview(
+                                context, ref, request,
+                                approve: true),
                             child: const Text('Duyệt'),
                           ),
                         ),

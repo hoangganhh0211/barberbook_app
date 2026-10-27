@@ -15,6 +15,7 @@ import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/features/auth/provider/auth_controller.dart';
 import 'package:barberbook_app/features/booking/model/booking_with_details.dart';
+import 'package:barberbook_app/features/leave_request/screen/leave_approval_screen.dart';
 import 'package:barberbook_app/features/staff_schedule/provider/staff_schedule_provider.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/staff_schedule_item.dart';
 import 'package:barberbook_app/features/staff_schedule/widget/week_selector.dart';
@@ -51,10 +52,16 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<String?> myStaffIdAsync = ref.watch(myStaffIdProvider);
-
     final AuthState authState = ref.watch(authControllerProvider);
     final UserRole? role = authState is AuthAuthenticated ? authState.session.role : null;
+
+    // For owners, the "Lịch làm việc" tab is used only to review leave requests.
+    // Do not load staff-specific schedule providers for an owner account.
+    if (role == UserRole.owner) {
+      return const LeaveApprovalScreen(showBackButton: false);
+    }
+
+    final AsyncValue<String?> myStaffIdAsync = ref.watch(myStaffIdProvider);
     final bool canRequestLeave =
         role != null && RbacMatrix.allows(role, AppPermission.leaveRequest);
     final bool canApproveLeave =
