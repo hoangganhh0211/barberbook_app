@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:barberbook_app/core/providers/core_providers.dart';
 import 'package:barberbook_app/core/utils/result.dart';
@@ -14,7 +17,44 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepositoryImpl(ref.watch(notificationServiceProvider));
 });
+
+final notificationRealtimeProvider = StreamProvider<int>((ref) {
+  final String? userId = ref.watch(authenticatedUserIdProvider);
+  if (userId == null) return const Stream<int>.empty();
+
+  final SupabaseClient client = ref.watch(supabaseClientProvider);
+  final StreamController<int> controller = StreamController<int>();
+  int eventSequence = 0;
+  final RealtimeChannel channel = client
+      .channel('customer-notifications-$userId')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'notifications',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'customer_id',
+          value: userId,
+        ),
+        callback: (_) {
+          if (!controller.isClosed) {
+            controller.add(++eventSequence);
+          }
+        },
+      )
+      .subscribe();
+
+  ref.onDispose(() {
+    unawaited(client.removeChannel(channel).then<void>((_) {}));
+    unawaited(controller.close());
+  });
+
+  return controller.stream;
+});
+
 final notificationListProvider = FutureProvider<List<NotificationModel>>((ref) async {
+  ref.watch(notificationRealtimeProvider);
+
   final String? userId = ref.watch(authenticatedUserIdProvider);
   if (userId == null) return const <NotificationModel>[];
 
@@ -26,6 +66,7 @@ final notificationListProvider = FutureProvider<List<NotificationModel>>((ref) a
       throw failure;
   }
 });
+
 final unreadNotificationCountProvider = Provider<int>((ref) {
   final AsyncValue<List<NotificationModel>> notificationsAsync = ref.watch(notificationListProvider);
   return notificationsAsync.maybeWhen(
