@@ -1,5 +1,6 @@
 import 'package:barberbook_app/shared/models/service_model.dart';
 import 'package:barberbook_app/shared/models/staff_model.dart';
+
 class BookingDraft {
   const BookingDraft({
     required this.shopId,
@@ -13,7 +14,8 @@ class BookingDraft {
   final StaffModel? selectedStaff;
   final DateTime? selectedDateTime;
 
-  bool get canContinueToDateTime => selectedService != null;
+  bool get canContinueToDateTime => selectedService != null && selectedStaff != null;
 
-  bool get canConfirm => selectedService != null && selectedDateTime != null;
+  bool get canConfirm =>
+      selectedService != null && selectedStaff != null && selectedDateTime != null;
 }

@@ -11,10 +11,8 @@ abstract class BookingRepository {
   Future<Result<BookingModel>> createBooking({
     required String shopId,
     required String serviceId,
-    String? staffId,
+    required String staffId,
     required DateTime startTime,
-    required DateTime endTime,
-    required double totalPrice,
   });
 
   Future<Result<List<BookingWithDetails>>> fetchMyBookings();
@@ -30,10 +28,8 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<Result<BookingModel>> createBooking({
     required String shopId,
     required String serviceId,
-    String? staffId,
+    required String staffId,
     required DateTime startTime,
-    required DateTime endTime,
-    required double totalPrice,
   }) async {
     try {
       final BookingModel booking = await _service.createBooking(
@@ -41,8 +37,6 @@ class BookingRepositoryImpl implements BookingRepository {
         serviceId: serviceId,
         staffId: staffId,
         startTime: startTime,
-        endTime: endTime,
-        totalPrice: totalPrice,
       );
       return Success(booking);
     } on PostgrestException catch (e) {

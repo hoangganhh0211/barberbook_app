@@ -8,6 +8,13 @@ import 'package:barberbook_app/shared/models/staff_model.dart';
 
 abstract class StaffRepository {
   Future<Result<List<StaffModel>>> fetchStaffByShop(String shopId);
+
+  Future<Result<List<DateTime>>> fetchAvailableSlots({
+    required String shopId,
+    required String staffId,
+    required String serviceId,
+    required DateTime date,
+  });
 }
 
 class StaffRepositoryImpl implements StaffRepository {
@@ -24,6 +31,28 @@ class StaffRepositoryImpl implements StaffRepository {
       return ResultFailure(mapSupabasePostgrestError(e));
     } catch (_) {
       return const ResultFailure(NetworkFailure('Không có kết nối mạng. Vui lòng kiểm tra Internet.'));
+    }
+  }
+
+  @override
+  Future<Result<List<DateTime>>> fetchAvailableSlots({
+    required String shopId,
+    required String staffId,
+    required String serviceId,
+    required DateTime date,
+  }) async {
+    try {
+      final slots = await _service.fetchAvailableSlots(
+        shopId: shopId,
+        staffId: staffId,
+        serviceId: serviceId,
+        date: date,
+      );
+      return Success(slots);
+    } on PostgrestException catch (e) {
+      return ResultFailure(mapSupabasePostgrestError(e));
+    } catch (_) {
+      return const ResultFailure(NetworkFailure('Không thể tải giờ trống. Vui lòng kiểm tra kết nối.'));
     }
   }
 }

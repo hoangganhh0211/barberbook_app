@@ -68,59 +68,6 @@ class _PartnerDashboardContent extends ConsumerWidget {
 
   final ShopModel shop;
 
-  Future<void> _handleConfirmBooking(
-    BuildContext context,
-    WidgetRef ref,
-    BookingWithDetails booking,
-  ) async {
-    final bool? shouldConfirm = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Xác nhận lịch hẹn'),
-        content: Text(
-          'Xác nhận lịch ${booking.service.name} của '
-          '${booking.customerName.isNotEmpty ? booking.customerName : 'khách hàng'} '
-          'vào ${Formatters.dateTimeVietnam(booking.startTime)}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Để sau'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Xác nhận'),
-          ),
-        ],
-      ),
-    );
-    if (shouldConfirm != true || !context.mounted) return;
-
-    final Failure? failure = await ref
-        .read(partnerDashboardRepositoryProvider)
-        .confirmBooking(booking.id);
-    if (!context.mounted) return;
-
-    if (failure != null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(failure.message), backgroundColor: AppColors.error),
-        );
-      return;
-    }
-
-    ref.invalidate(partnerDashboardBookingsProvider(shop.id));
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Đã xác nhận lịch hẹn. Khách hàng sẽ nhận được thông báo.'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-  }
-
   Future<void> _handleCompleteBooking(
     BuildContext context,
     WidgetRef ref,
@@ -199,7 +146,6 @@ class _PartnerDashboardContent extends ConsumerWidget {
           shop: shop,
           bookings: bookings,
           staff: staff,
-          onConfirmBooking: (booking) => _handleConfirmBooking(context, ref, booking),
           onCompleteBooking: (booking) => _handleCompleteBooking(context, ref, booking),
           onRefresh: () async {
             try {
@@ -221,7 +167,6 @@ class _DashboardBody extends StatelessWidget {
     required this.bookings,
     required this.staff,
     required this.onRefresh,
-    required this.onConfirmBooking,
     required this.onCompleteBooking,
   });
 
@@ -229,7 +174,6 @@ class _DashboardBody extends StatelessWidget {
   final List<BookingWithDetails> bookings;
   final List<StaffModel> staff;
   final Future<void> Function() onRefresh;
-  final Future<void> Function(BookingWithDetails booking) onConfirmBooking;
   final Future<void> Function(BookingWithDetails booking) onCompleteBooking;
 
   @override
@@ -252,8 +196,8 @@ class _DashboardBody extends StatelessWidget {
           startTime.isBefore(tomorrowStartUtc) &&
           booking.status != BookingStatus.cancelled;
     }).length;
-    final int pendingBookingCount =
-        bookings.where((booking) => booking.status == BookingStatus.pending).length;
+    final int confirmedBookingCount =
+        bookings.where((booking) => booking.status == BookingStatus.confirmed).length;
     final double monthlyRevenue = bookings
         .where((booking) {
           final DateTime startTime = booking.startTime.toUtc();
@@ -276,20 +220,7 @@ class _DashboardBody extends StatelessWidget {
             !booking.startTime.toUtc().isBefore(nowUtc))
         .toList()
       ..sort((a, b) => a.startTime.toUtc().compareTo(b.startTime.toUtc()));
-    // Ưu tiên hiển thị mọi lịch đang chờ để chủ tiệm không bỏ lỡ nút xác nhận;
-    // phần còn lại lấy tối đa 5 lịch đã xác nhận gần nhất.
-    final List<BookingWithDetails> pendingUpcomingBookings = upcomingBookings
-        .where((booking) => booking.status == BookingStatus.pending)
-        .toList();
-    final List<BookingWithDetails> confirmedUpcomingBookings = upcomingBookings
-        .where((booking) => booking.status == BookingStatus.confirmed)
-        .toList();
-    final List<BookingWithDetails> visibleBookings = <BookingWithDetails>[
-      ...pendingUpcomingBookings,
-      ...confirmedUpcomingBookings.take(
-        pendingUpcomingBookings.length < 5 ? 5 - pendingUpcomingBookings.length : 0,
-      ),
-    ]..sort((a, b) => a.startTime.toUtc().compareTo(b.startTime.toUtc()));
+    final List<BookingWithDetails> visibleBookings = upcomingBookings.take(5).toList();
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -321,8 +252,8 @@ class _DashboardBody extends StatelessWidget {
               ),
               _KpiCard(
                 icon: Icons.hourglass_top_rounded,
-                title: 'Chờ xác nhận',
-                value: '$pendingBookingCount',
+                title: 'Lịch đã xác nhận',
+                value: '$confirmedBookingCount',
                 accent: AppColors.warning,
               ),
               _KpiCard(
@@ -388,12 +319,7 @@ class _DashboardBody extends StatelessWidget {
             )
           else
             for (final booking in visibleBookings) ...[
-              _UpcomingBookingCard(
-                booking: booking,
-                onConfirm: booking.status == BookingStatus.pending
-                    ? () => onConfirmBooking(booking)
-                    : null,
-              ),
+              _UpcomingBookingCard(booking: booking),
               const SizedBox(height: 10),
             ],
         ],
@@ -537,10 +463,9 @@ class _KpiCard extends StatelessWidget {
 }
 
 class _UpcomingBookingCard extends StatelessWidget {
-  const _UpcomingBookingCard({required this.booking, this.onConfirm, this.onComplete});
+  const _UpcomingBookingCard({required this.booking, this.onComplete});
 
   final BookingWithDetails booking;
-  final VoidCallback? onConfirm;
   final VoidCallback? onComplete;
 
   @override
@@ -621,21 +546,15 @@ class _UpcomingBookingCard extends StatelessWidget {
               ),
             ],
           ),
-          if (onConfirm != null || onComplete != null) ...[
+          if (onComplete != null) ...[
             const SizedBox(height: 10),
             Align(
               alignment: Alignment.centerRight,
-              child: onComplete != null
-                  ? FilledButton.icon(
-                      onPressed: onComplete,
-                      icon: const Icon(Icons.task_alt_rounded, size: 18),
-                      label: const Text('Hoàn thành dịch vụ'),
-                    )
-                  : FilledButton.icon(
-                      onPressed: onConfirm,
-                      icon: const Icon(Icons.check_circle_outline, size: 18),
-                      label: const Text('Xác nhận lịch'),
-                    ),
+              child: FilledButton.icon(
+                onPressed: onComplete,
+                icon: const Icon(Icons.task_alt_rounded, size: 18),
+                label: const Text('Hoàn thành dịch vụ'),
+              ),
             ),
           ],
         ],

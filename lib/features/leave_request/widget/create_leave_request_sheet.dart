@@ -8,8 +8,8 @@ import 'package:barberbook_app/core/utils/result.dart';
 import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/features/leave_request/provider/leave_request_provider.dart';
 
-
-Future<bool?> showCreateLeaveRequestSheet(BuildContext context, {required String shopId}) {
+Future<bool?> showCreateLeaveRequestSheet(BuildContext context,
+    {required String shopId}) {
   return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
@@ -62,12 +62,15 @@ class _CreateLeaveRequestSheetContentState
 
     setState(() => _isSubmitting = true);
 
-    final result = await ref.read(leaveRequestRepositoryProvider).createLeaveRequest(
-          shopId: widget.shopId,
-          startDate: _selectedRange!.start,
-          endDate: _selectedRange!.end,
-          reason: _reasonController.text.trim().isEmpty ? null : _reasonController.text.trim(),
-        );
+    final result =
+        await ref.read(leaveRequestRepositoryProvider).createLeaveRequest(
+              shopId: widget.shopId,
+              startDate: _selectedRange!.start,
+              endDate: _selectedRange!.end,
+              reason: _reasonController.text.trim().isEmpty
+                  ? null
+                  : _reasonController.text.trim(),
+            );
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
@@ -79,7 +82,9 @@ class _CreateLeaveRequestSheetContentState
       case ResultFailure(:final failure):
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(failure.message), backgroundColor: AppColors.error));
+          ..showSnackBar(SnackBar(
+              content: Text(failure.message),
+              backgroundColor: AppColors.error));
     }
   }
 
@@ -101,10 +106,13 @@ class _CreateLeaveRequestSheetContentState
               width: 40,
               height: 4,
               margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2)),
             ),
           ),
-          Text('Tạo đơn xin nghỉ', style: AppTextStyles.heading2, textAlign: TextAlign.center),
+          Text('Tạo đơn xin nghỉ',
+              style: AppTextStyles.heading2, textAlign: TextAlign.center),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDateRange,
@@ -120,7 +128,7 @@ class _CreateLeaveRequestSheetContentState
             controller: _reasonController,
             maxLines: 3,
             decoration: const InputDecoration(
-              hintText: 'Lý do xin nghỉ (không bắt buộc)...',
+              hintText: 'Lý do xin nghỉ',
             ),
           ),
           const SizedBox(height: 20),

@@ -9,29 +9,23 @@ class BookingService {
   Future<BookingModel> createBooking({
     required String shopId,
     required String serviceId,
-    String? staffId,
+    required String staffId,
     required DateTime startTime,
-    required DateTime endTime,
-    required double totalPrice,
   }) async {
     final String? customerId = _client.auth.currentUser?.id;
     if (customerId == null) {
       throw StateError('Chưa đăng nhập - không thể tạo lịch hẹn.');
     }
 
-    final Map<String, dynamic> row = await _client
-        .from('bookings')
-        .insert({
-          'customer_id': customerId,
-          'shop_id': shopId,
-          'service_id': serviceId,
-          'staff_id': staffId,
-          'start_time': startTime.toUtc().toIso8601String(),
-          'end_time': endTime.toUtc().toIso8601String(),
-          'total_price': totalPrice,
-        })
-        .select()
-        .single();
+    final Map<String, dynamic> row = await _client.rpc(
+      'create_confirmed_booking',
+      params: <String, dynamic>{
+        'p_shop_id': shopId,
+        'p_service_id': serviceId,
+        'p_staff_id': staffId,
+        'p_start_time': startTime.toUtc().toIso8601String(),
+      },
+    ).single();
 
     return BookingModel.fromJson(row);
   }

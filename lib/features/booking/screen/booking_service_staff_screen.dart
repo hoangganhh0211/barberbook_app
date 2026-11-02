@@ -63,25 +63,13 @@ class BookingServiceStaffScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 28),
           Text('Chọn thợ', style: AppTextStyles.heading2),
-          const SizedBox(height: 4),
-          Text(
-            'Không bắt buộc - để trống nếu bạn không có yêu cầu riêng',
-            style: AppTextStyles.bodySecondary,
-          ),
           const SizedBox(height: 12),
-          SelectableOptionCard(
-            title: 'Bất kỳ thợ nào',
-            leading: const CircleAvatar(
-              backgroundColor: AppColors.background,
-              child: Icon(Icons.shuffle, color: AppColors.textSecondary),
-            ),
-            isSelected: draft.selectedStaff == null,
-            onTap: () => controller.selectStaff(null),
-          ),
-          const SizedBox(height: 10),
           AsyncValueWidget<List<StaffModel>>(
             value: staffAsync,
             skeletonItemCount: 2,
+            isEmpty: (staffList) => staffList.isEmpty,
+            emptyTitle: 'Chưa có thợ được liên kết tài khoản',
+            emptyDescription: 'Tiệm cần liên kết tài khoản đăng nhập cho thợ trước khi khách có thể đặt lịch.',
             onRetry: () => ref.invalidate(staffListProvider(draft.shopId)),
             dataBuilder: (staffList) => Column(
               children: [

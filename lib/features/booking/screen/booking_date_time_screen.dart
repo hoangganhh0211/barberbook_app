@@ -11,8 +11,10 @@ import 'package:barberbook_app/core/widgets/app_primary_button.dart';
 import 'package:barberbook_app/core/widgets/branded_app_bar.dart';
 import 'package:barberbook_app/core/widgets/empty_state_widget.dart';
 import 'package:barberbook_app/features/booking/model/booking_draft.dart';
+import 'package:barberbook_app/features/booking/provider/booking_catalog_providers.dart';
 import 'package:barberbook_app/features/booking/provider/booking_draft_provider.dart';
 import 'package:barberbook_app/routes/route_paths.dart';
+
 class BookingDateTimeScreen extends ConsumerStatefulWidget {
   const BookingDateTimeScreen({super.key});
 
@@ -21,10 +23,6 @@ class BookingDateTimeScreen extends ConsumerStatefulWidget {
 }
 
 class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
-  static const int _openHour = 9;
-  static const int _closeHour = 19;
-  static const int _slotStepMinutes = 30;
-
   late DateTime _selectedDay;
   late DateTime _focusedDay;
   DateTime? _selectedSlot;
@@ -36,40 +34,29 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
     _focusedDay = _selectedDay;
   }
 
-  List<DateTime> _generateTimeSlots(DateTime day, int durationMinutes) {
-    // Store real instants in UTC, derived from the shop's Vietnam wall clock.
-    final DateTime dayEnd = VietnamTime.wallToUtc(
-      DateTime(day.year, day.month, day.day, _closeHour),
-    );
-    final DateTime now = VietnamTime.nowUtc();
-
-    final List<DateTime> slots = [];
-    DateTime cursor = VietnamTime.wallToUtc(
-      DateTime(day.year, day.month, day.day, _openHour),
-    );
-    while (!cursor.add(Duration(minutes: durationMinutes)).isAfter(dayEnd)) {
-      if (cursor.isAfter(now)) {
-        slots.add(cursor);
-      }
-      cursor = cursor.add(const Duration(minutes: _slotStepMinutes));
-    }
-    return slots;
-  }
-
   @override
   Widget build(BuildContext context) {
     final BookingDraft? draft = ref.watch(bookingDraftControllerProvider);
 
-    if (draft == null || draft.selectedService == null) {
+    if (draft == null || draft.selectedService == null || draft.selectedStaff == null) {
       return Scaffold(
         appBar: const BrandedAppBar(variant: BrandedAppBarVariant.titleOnly, showBackButton: true),
-        body: const Center(child: Text('Vui lòng chọn dịch vụ trước.')),
+        body: const Center(child: Text('Vui lòng chọn dịch vụ và thợ trước.')),
       );
     }
 
+    final query = StaffAvailabilityQuery(
+      shopId: draft.shopId,
+      staffId: draft.selectedStaff!.id,
+      serviceId: draft.selectedService!.id,
+      date: _selectedDay,
+    );
+    final slotsAsync = ref.watch(availableStaffSlotsProvider(query));
     final BookingDraftController controller = ref.read(bookingDraftControllerProvider.notifier);
     final DateTime today = VietnamTime.todayCalendarDate();
-    final List<DateTime> slots = _generateTimeSlots(_selectedDay, draft.selectedService!.durationMinutes);
+    final List<DateTime> availableSlots = slotsAsync.valueOrNull ?? const <DateTime>[];
+    final bool canContinueWithSelectedSlot = _selectedSlot != null &&
+        availableSlots.any((slot) => slot.isAtSameMomentAs(_selectedSlot!));
 
     return Scaffold(
       appBar: const BrandedAppBar(variant: BrandedAppBarVariant.titleOnly, showBackButton: true),
@@ -87,7 +74,7 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
               setState(() {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
-                _selectedSlot = null; // doi ngay -> reset gio da chon
+                _selectedSlot = null;
               });
             },
             onPageChanged: (focusedDay) => _focusedDay = focusedDay,
@@ -115,57 +102,82 @@ class _BookingDateTimeScreenState extends ConsumerState<BookingDateTimeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('Chọn giờ', style: AppTextStyles.titleMedium),
+              child: Text(
+                'Giờ còn trống của ${draft.selectedStaff!.fullName}',
+                style: AppTextStyles.titleMedium,
+              ),
             ),
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: slots.isEmpty
-                ? const EmptyStateWidget(
-                    title: 'Không còn khung giờ trống',
-                    description: 'Vui lòng chọn ngày khác',
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 2.2,
-                    ),
-                    itemCount: slots.length,
-                    itemBuilder: (context, index) {
-                      final DateTime slot = slots[index];
-                      final bool isSelected = _selectedSlot == slot;
-                      return InkWell(
-                        onTap: () => setState(() => _selectedSlot = slot),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary : AppColors.surface,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isSelected ? AppColors.primary : AppColors.border,
-                            ),
-                          ),
-                          child: Text(
-                            Formatters.timeVietnam(slot),
-                            style: AppTextStyles.bodyRegular.copyWith(
-                              color: isSelected ? AppColors.onPrimary : AppColors.textPrimary,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                            ),
+            child: slotsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Không thể tải lịch trống của thợ.'),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () => ref.invalidate(availableStaffSlotsProvider(query)),
+                        child: const Text('Thử lại'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              data: (slots) {
+                if (slots.isEmpty) {
+                  return const EmptyStateWidget(
+                    title: 'Thợ không còn khung giờ trống',
+                    description: 'Thợ đã có lịch hẹn hoặc nghỉ trong ngày này. Vui lòng chọn ngày khác.',
+                  );
+                }
+                return GridView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 2.2,
+                  ),
+                  itemCount: slots.length,
+                  itemBuilder: (context, index) {
+                    final DateTime slot = slots[index];
+                    final bool isSelected = _selectedSlot?.isAtSameMomentAs(slot) ?? false;
+                    return InkWell(
+                      onTap: () => setState(() => _selectedSlot = slot),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primary : AppColors.surface,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : AppColors.border,
                           ),
                         ),
-                      );
-                    },
-                  ),
+                        child: Text(
+                          Formatters.timeVietnam(slot),
+                          style: AppTextStyles.bodyRegular.copyWith(
+                            color: isSelected ? AppColors.onPrimary : AppColors.textPrimary,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: AppPrimaryButton(
               label: 'Tiếp tục',
-              onPressed: _selectedSlot != null
+              onPressed: canContinueWithSelectedSlot
                   ? () {
                       controller.selectDateTime(_selectedSlot!);
                       context.push(RoutePaths.bookingConfirm);

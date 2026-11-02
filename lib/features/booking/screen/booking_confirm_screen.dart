@@ -43,15 +43,12 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
     }
 
     setState(() => _isSubmitting = true);
-    final DateTime endTime = startTime.add(Duration(minutes: draft.selectedService!.durationMinutes));
 
     final result = await ref.read(bookingRepositoryProvider).createBooking(
           shopId: draft.shopId,
           serviceId: draft.selectedService!.id,
-          staffId: draft.selectedStaff?.id,
+          staffId: draft.selectedStaff!.id,
           startTime: startTime,
-          endTime: endTime,
-          totalPrice: draft.selectedService!.price,
         );
 
     if (!mounted) return;
@@ -67,7 +64,7 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
           ..hideCurrentSnackBar()
           ..showSnackBar(
             const SnackBar(
-              content: Text('Đã gửi yêu cầu đặt lịch. Vui lòng chờ tiệm xác nhận.'),
+              content: Text('Đặt lịch thành công. Lịch hẹn của bạn đã được tự động xác nhận.'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -120,7 +117,7 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
               _SummaryRow(
                 icon: Icons.person_outline,
                 label: 'Thợ',
-                value: draft.selectedStaff?.fullName ?? 'Bất kỳ thợ nào',
+                value: draft.selectedStaff!.fullName,
               ),
               _SummaryRow(
                 icon: Icons.calendar_today_outlined,
@@ -151,7 +148,7 @@ class _BookingConfirmScreenState extends ConsumerState<BookingConfirmScreen> {
           ),
           const SizedBox(height: 28),
           AppPrimaryButton(
-            label: 'Xác nhận đặt lịch',
+            label: 'Đặt lịch ngay',
             isLoading: _isSubmitting,
             onPressed: () => _handleConfirm(draft),
           ),
